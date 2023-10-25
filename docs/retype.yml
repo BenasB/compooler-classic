@@ -1,0 +1,15 @@
+input: .
+output: .retype
+url: https://benasb.github.io/compooler
+branding:
+  title: Compooler
+  label: Docs
+links:
+  - text: Repository
+    link: https://github.com/BenasB/compooler
+    icon: mark-github
+    target: blank
+footer:
+  copyright: "&copy; Copyright {{ year }}. All rights reserved."
+meta:
+  title: " | Compooler Docs"
