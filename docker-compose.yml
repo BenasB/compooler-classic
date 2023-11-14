@@ -1,0 +1,11 @@
+services:
+  firebase-tools:
+    image: andreysenov/firebase-tools:latest
+    volumes:
+      - ./services/client:/home/node
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+    command: firebase emulators:start
+    ports:
+      - 9099:9099
