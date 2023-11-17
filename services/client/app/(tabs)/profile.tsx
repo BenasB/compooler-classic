@@ -6,7 +6,7 @@ const Profile = () => {
   return (
     <View>
       <Text>My profile</Text>
-      <Link href={"/auth/login"}>Login</Link>
+      <Link href={"/login"}>Login</Link>
     </View>
   );
 };
