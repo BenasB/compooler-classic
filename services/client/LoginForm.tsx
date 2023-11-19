@@ -12,10 +12,10 @@ import {
   signInWithEmailAndPassword,
 } from "firebase/auth";
 import { router } from "expo-router";
-import { AuthContext } from "./hooks/auth";
+import { useAnonymousAuthContext } from "./hooks/auth";
 
 const Login = () => {
-  const authState = useContext(AuthContext);
+  const authState = useAnonymousAuthContext();
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);

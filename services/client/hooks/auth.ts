@@ -12,7 +12,7 @@ import {
   onAuthStateChanged,
   browserLocalPersistence,
 } from "firebase/auth";
-import { createContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { Platform } from "react-native";
 
 const localIp = Platform.select<string>({
@@ -36,8 +36,12 @@ connectAuthEmulator(firebaseAuth, `http://${localIp}:9099`); // TODO: Don't alwa
 
 type State =
   | {
-      state: "initialized";
-      user: User | undefined;
+      state: "loggedIn";
+      user: User;
+      firebase: Auth;
+    }
+  | {
+      state: "loggedOut";
       firebase: Auth;
     }
   | { state: "uninitialized"; firebase: Auth };
@@ -47,7 +51,9 @@ const initialAuthState: State = {
   firebase: firebaseAuth,
 };
 
-export const AuthContext = createContext<State>(initialAuthState);
+const AuthContext = createContext<State>(initialAuthState);
+
+export const AuthContextProvider = AuthContext.Provider;
 
 export const useAuthenticationRoot = () => {
   const [authState, setAuthState] = useState<State>(initialAuthState);
@@ -60,15 +66,14 @@ export const useAuthenticationRoot = () => {
         console.log("Logged in", user);
         setAuthState((prevState) => ({
           ...prevState,
-          state: "initialized",
+          state: "loggedIn",
           user: user,
         }));
       } else {
         console.log("Logged out");
         setAuthState((prevState) => ({
           ...prevState,
-          state: "initialized",
-          user: undefined,
+          state: "loggedOut",
         }));
       }
     });
@@ -77,16 +82,60 @@ export const useAuthenticationRoot = () => {
   }, []);
 
   useEffect(() => {
-    if (authState.state !== "initialized") {
+    if (authState.state === "uninitialized") {
       return;
     }
 
     const isInAuthRoute = segments[0] === "(auth)";
-    const isLoggedIn = authState.user !== undefined;
+    const isLoggedIn = authState.state === "loggedIn";
 
+    // Prevent user from going directly to authenticated pages if they are not authenticated
     if (!isInAuthRoute && !isLoggedIn) router.replace("/login");
+    // Prevent user from going directly to authentication pages if they are already authenticated
     else if (isInAuthRoute && isLoggedIn) router.replace("/home");
   }, [segments, authState.state]);
 
   return { authState };
+};
+
+/**
+ * To be used with pages that expect an authenticated user
+ */
+export const usePrivateAuthContext = () => {
+  const ctx = useContext(AuthContext);
+
+  if (ctx.state !== "loggedIn")
+    throw new Error(
+      `Expected there to be a user in this context, but state was ${ctx.state}`
+    );
+
+  return ctx;
+};
+
+/**
+ * To be used with pages that expect an unauthenticated (anonymous) user
+ */
+export const useAnonymousAuthContext = () => {
+  const ctx = useContext(AuthContext);
+
+  if (ctx.state !== "loggedOut")
+    throw new Error(
+      `Expected auth to be initialized and a logged out user, but state was ${ctx.state}`
+    );
+
+  return ctx;
+};
+
+/**
+ * To be used with pages that expect either an authenticated or an unauthenticated (anonymous) user
+ */
+export const usePublicAuthContext = () => {
+  const ctx = useContext(AuthContext);
+
+  if (ctx.state === "uninitialized")
+    throw new Error(
+      `Expected auth to be initialized, but state was ${ctx.state}`
+    );
+
+  return ctx;
 };

@@ -1,11 +1,11 @@
 import { View, Text, Button } from "react-native";
-import React, { useContext } from "react";
+import React from "react";
 import { signOut } from "firebase/auth";
 import { useRouter } from "expo-router";
-import { AuthContext } from "../../hooks/auth";
+import { usePrivateAuthContext } from "../../hooks/auth";
 
 const Profile = () => {
-  const authState = useContext(AuthContext);
+  const authState = usePrivateAuthContext();
   const router = useRouter();
 
   return (

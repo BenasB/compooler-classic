@@ -1,17 +1,18 @@
 import React from "react";
 import { Stack } from "expo-router";
-import { AuthContext, useAuthenticationRoot } from "../hooks/auth";
+import { AuthContextProvider, useAuthenticationRoot } from "../hooks/auth";
 import { ActivityIndicator } from "react-native";
 
 const RootLayout = () => {
   const { authState } = useAuthenticationRoot();
 
-  if (authState.state !== "initialized") return <ActivityIndicator />;
+  // Placeholder until auth is initialized
+  if (authState.state === "uninitialized") return <ActivityIndicator />;
 
   return (
-    <AuthContext.Provider value={authState}>
+    <AuthContextProvider value={authState}>
       <Stack screenOptions={{ headerShown: false }} />
-    </AuthContext.Provider>
+    </AuthContextProvider>
   );
 };
 

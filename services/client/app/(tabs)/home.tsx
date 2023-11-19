@@ -1,18 +1,13 @@
 import { View, Text } from "react-native";
-import React, { useContext } from "react";
-import { AuthContext } from "../../hooks/auth";
+import React from "react";
+import { usePrivateAuthContext } from "../../hooks/auth";
 
 const Home = () => {
-  const authState = useContext(AuthContext);
+  const authState = usePrivateAuthContext();
 
   return (
     <View>
-      <Text>
-        Hello{" "}
-        {authState.state === "initialized" && authState.user
-          ? authState.user.email
-          : "should not happen"}
-      </Text>
+      <Text>Hello {authState.user.email}</Text>
     </View>
   );
 };
