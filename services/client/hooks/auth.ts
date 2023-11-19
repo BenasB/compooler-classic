@@ -1,5 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Constants from "expo-constants";
+import { useSegments, useRouter } from "expo-router";
 import { FirebaseOptions, initializeApp } from "firebase/app";
 import {
   Auth,
@@ -48,8 +49,10 @@ const initialAuthState: State = {
 
 export const AuthContext = createContext<State>(initialAuthState);
 
-export const useAuthentication = () => {
+export const useAuthenticationRoot = () => {
   const [authState, setAuthState] = useState<State>(initialAuthState);
+  const segments = useSegments();
+  const router = useRouter();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(authState.firebase, (user) => {
@@ -72,6 +75,18 @@ export const useAuthentication = () => {
 
     return unsubscribe;
   }, []);
+
+  useEffect(() => {
+    if (authState.state !== "initialized") {
+      return;
+    }
+
+    const isInAuthRoute = segments[0] === "(auth)";
+    const isLoggedIn = authState.user !== undefined;
+
+    if (!isInAuthRoute && !isLoggedIn) router.replace("/login");
+    else if (isInAuthRoute && isLoggedIn) router.replace("/home");
+  }, [segments, authState.state]);
 
   return { authState };
 };

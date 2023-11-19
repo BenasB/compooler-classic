@@ -24,7 +24,7 @@ const Login = () => {
     setLoading(true);
     try {
       await signInWithEmailAndPassword(authState.firebase, email, password);
-      router.replace("/");
+      router.replace("/home");
     } catch (error) {
       console.log(error);
     } finally {
@@ -36,7 +36,7 @@ const Login = () => {
     setLoading(true);
     try {
       await createUserWithEmailAndPassword(authState.firebase, email, password);
-      router.replace("/");
+      router.replace("/home");
     } catch (error) {
       console.log(error);
     } finally {

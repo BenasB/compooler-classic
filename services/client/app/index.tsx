@@ -6,11 +6,8 @@ import { ActivityIndicator } from "react-native";
 const Index = () => {
   const authState = useContext(AuthContext);
 
-  // TODO: handle when going straight to some path
-
-  if (authState.state === "initialized") {
-    if (authState.user) return <Redirect href={"/home"} />;
-    else return <Redirect href={"/login"} />;
+  if (authState.state === "initialized" && authState.user) {
+    return <Redirect href={"/home"} />;
   } else {
     return <ActivityIndicator />;
   }
