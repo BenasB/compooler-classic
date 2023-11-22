@@ -2,29 +2,30 @@ import {
   ActivityIndicator,
   Button,
   KeyboardAvoidingView,
+  Pressable,
   StyleSheet,
-  Text,
   TextInput,
   View,
 } from "react-native";
-import React, { useState } from "react";
-import { FIREBASE_AUTH } from "./firebaseConfig";
+import React, { useContext, useState } from "react";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
 } from "firebase/auth";
+import { router } from "expo-router";
+import { useAnonymousAuthContext } from "./hooks/auth";
 
 const Login = () => {
+  const authState = useAnonymousAuthContext();
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
-  const auth = FIREBASE_AUTH;
 
   const signIn = async () => {
     setLoading(true);
     try {
-      const response = await signInWithEmailAndPassword(auth, email, password);
-      console.log(response);
+      await signInWithEmailAndPassword(authState.firebase, email, password);
+      router.replace("/home");
     } catch (error) {
       console.log(error);
     } finally {
@@ -35,12 +36,8 @@ const Login = () => {
   const signUp = async () => {
     setLoading(true);
     try {
-      const response = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      console.log(response);
+      await createUserWithEmailAndPassword(authState.firebase, email, password);
+      router.replace("/home");
     } catch (error) {
       console.log(error);
     } finally {
@@ -56,6 +53,7 @@ const Login = () => {
           onChangeText={setEmail}
           autoCapitalize="none"
           placeholder="Email"
+          keyboardType="email-address"
         />
         <TextInput
           value={password}

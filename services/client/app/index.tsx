@@ -1,8 +1,15 @@
 import React from "react";
+import { usePublicAuthContext } from "../hooks/auth";
 import { Redirect } from "expo-router";
 
 const Index = () => {
-  return <Redirect href={"/home"} />;
+  const authState = usePublicAuthContext();
+
+  if (authState.state === "loggedIn") {
+    return <Redirect href={"/home"} />;
+  } else if (authState.state === "loggedOut") {
+    return <Redirect href={"/login"} />;
+  }
 };
 
 export default Index;

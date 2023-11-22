@@ -1,8 +1,18 @@
 import React from "react";
-import { Stack } from "expo-router";
+import { Slot } from "expo-router";
+import { ActivityIndicator } from "react-native";
+import { AuthContextProvider, useAuthenticationRoot } from "../hooks/auth";
 
-const StackLayout = () => {
-  return <Stack screenOptions={{ headerShown: false }} />;
+const AppLayout = () => {
+  const { authState } = useAuthenticationRoot();
+
+  if (authState.state === "uninitialized") return <ActivityIndicator />;
+
+  return (
+    <AuthContextProvider value={authState}>
+      <Slot />
+    </AuthContextProvider>
+  );
 };
 
-export default StackLayout;
+export default AppLayout;

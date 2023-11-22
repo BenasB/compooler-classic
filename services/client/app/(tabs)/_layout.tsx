@@ -1,8 +1,13 @@
 import React from "react";
-import { Tabs } from "expo-router";
+import { Redirect, Tabs } from "expo-router";
 import { Foundation } from "@expo/vector-icons";
+import { usePublicAuthContext } from "../../hooks/auth";
 
 const Layout = () => {
+  const authState = usePublicAuthContext();
+
+  if (authState.state !== "loggedIn") return <Redirect href="/login" />;
+
   return (
     <Tabs>
       <Tabs.Screen

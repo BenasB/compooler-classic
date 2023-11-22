@@ -1,12 +1,23 @@
-import { View, Text } from "react-native";
+import { View, Text, Button } from "react-native";
 import React from "react";
-import { Link } from "expo-router";
+import { signOut } from "firebase/auth";
+import { useRouter } from "expo-router";
+import { usePrivateAuthContext } from "../../hooks/auth";
 
 const Profile = () => {
+  const authState = usePrivateAuthContext();
+  const router = useRouter();
+
   return (
     <View>
       <Text>My profile</Text>
-      <Link href={"/login"}>Login</Link>
+      <Button
+        title="Log out"
+        onPress={async () => {
+          await signOut(authState.firebase);
+          router.replace("/");
+        }}
+      />
     </View>
   );
 };
