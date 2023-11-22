@@ -1,15 +1,14 @@
-import React, { useContext } from "react";
+import React from "react";
+import { usePublicAuthContext } from "../hooks/auth";
 import { Redirect } from "expo-router";
-import { AuthContext } from "../hooks/auth";
-import { ActivityIndicator } from "react-native";
 
 const Index = () => {
-  const authState = useContext(AuthContext);
+  const authState = usePublicAuthContext();
 
-  if (authState.state === "initialized" && authState.user) {
+  if (authState.state === "loggedIn") {
     return <Redirect href={"/home"} />;
-  } else {
-    return <ActivityIndicator />;
+  } else if (authState.state === "loggedOut") {
+    return <Redirect href={"/login"} />;
   }
 };
 

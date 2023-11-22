@@ -81,20 +81,6 @@ export const useAuthenticationRoot = () => {
     return unsubscribe;
   }, []);
 
-  useEffect(() => {
-    if (authState.state === "uninitialized") {
-      return;
-    }
-
-    const isInAuthRoute = segments[0] === "(auth)";
-    const isLoggedIn = authState.state === "loggedIn";
-
-    // Prevent user from going directly to authenticated pages if they are not authenticated
-    if (!isInAuthRoute && !isLoggedIn) router.replace("/login");
-    // Prevent user from going directly to authentication pages if they are already authenticated
-    else if (isInAuthRoute && isLoggedIn) router.replace("/home");
-  }, [segments, authState.state]);
-
   return { authState };
 };
 
