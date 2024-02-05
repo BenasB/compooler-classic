@@ -2,18 +2,17 @@ import {
   ActivityIndicator,
   Button,
   KeyboardAvoidingView,
-  Pressable,
   StyleSheet,
   TextInput,
   View,
 } from "react-native";
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
 } from "firebase/auth";
 import { router } from "expo-router";
-import { useAnonymousAuthContext } from "./hooks/auth";
+import { useAnonymousAuthContext } from "../hooks/auth";
 
 const Login = () => {
   const authState = useAnonymousAuthContext();
