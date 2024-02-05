@@ -57,8 +57,6 @@ export const AuthContextProvider = AuthContext.Provider;
 
 export const useAuthenticationRoot = () => {
   const [authState, setAuthState] = useState<State>(initialAuthState);
-  const segments = useSegments();
-  const router = useRouter();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(authState.firebase, (user) => {

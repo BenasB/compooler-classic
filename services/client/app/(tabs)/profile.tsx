@@ -1,15 +1,16 @@
-import { View, Text, Button } from "react-native";
+import { Text, Button } from "react-native";
 import React from "react";
 import { signOut } from "firebase/auth";
 import { useRouter } from "expo-router";
 import { usePrivateAuthContext } from "../../hooks/auth";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const Profile = () => {
   const authState = usePrivateAuthContext();
   const router = useRouter();
 
   return (
-    <View>
+    <SafeAreaView>
       <Text>My profile</Text>
       <Button
         title="Log out"
@@ -18,7 +19,7 @@ const Profile = () => {
           router.replace("/");
         }}
       />
-    </View>
+    </SafeAreaView>
   );
 };
 

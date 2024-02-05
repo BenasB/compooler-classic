@@ -1,6 +1,6 @@
 import React from "react";
 import { Redirect, Tabs } from "expo-router";
-import { Foundation } from "@expo/vector-icons";
+import { Feather } from "@expo/vector-icons";
 import { usePublicAuthContext } from "../../hooks/auth";
 
 const Layout = () => {
@@ -9,28 +9,26 @@ const Layout = () => {
   if (authState.state !== "loggedIn") return <Redirect href="/login" />;
 
   return (
-    <Tabs>
+    <Tabs screenOptions={{ headerShown: false }}>
       <Tabs.Screen
         name="home"
         options={{
           tabBarLabel: "Home",
-          tabBarIcon: () => <Foundation name="home" size={24} color="black" />,
+          tabBarIcon: () => <Feather name="home" size={24} color="black" />,
         }}
       />
       <Tabs.Screen
-        name="list"
+        name="groups"
         options={{
-          tabBarLabel: "List",
-          tabBarIcon: () => (
-            <Foundation name="list-bullet" size={24} color="black" />
-          ),
+          tabBarLabel: "Groups",
+          tabBarIcon: () => <Feather name="users" size={24} color="black" />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
           tabBarLabel: "Profile",
-          tabBarIcon: () => <Foundation name="torso" size={24} color="black" />,
+          tabBarIcon: () => <Feather name="user" size={24} color="black" />,
         }}
       />
     </Tabs>
