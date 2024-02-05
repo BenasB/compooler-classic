@@ -9,7 +9,7 @@ const Layout = () => {
   if (authState.state !== "loggedIn") return <Redirect href="/login" />;
 
   return (
-    <Tabs>
+    <Tabs screenOptions={{ headerShown: false }}>
       <Tabs.Screen
         name="home"
         options={{
