@@ -1,11 +1,12 @@
+import { ActivityIndicator, StyleSheet } from "react-native";
 import {
-  ActivityIndicator,
   Button,
-  KeyboardAvoidingView,
-  StyleSheet,
-  TextInput,
+  Input,
+  InputField,
+  ButtonText,
+  VStack,
   View,
-} from "react-native";
+} from "@gluestack-ui/themed";
 import React, { useState } from "react";
 import {
   createUserWithEmailAndPassword,
@@ -45,31 +46,39 @@ const Login = () => {
   };
 
   return (
-    <View>
-      <KeyboardAvoidingView>
-        <TextInput
-          value={email}
-          onChangeText={setEmail}
-          autoCapitalize="none"
-          placeholder="Email"
-          keyboardType="email-address"
-        />
-        <TextInput
-          value={password}
-          onChangeText={setPassword}
-          autoCapitalize="none"
-          placeholder="Password"
-          secureTextEntry={true}
-        />
+    <View my={"$5"} $base-w={"100%"} $md-w={"30%"}>
+      <VStack space="md">
+        <Input>
+          <InputField
+            value={email}
+            onChangeText={setEmail}
+            autoCapitalize="none"
+            placeholder="Email"
+            keyboardType="email-address"
+          />
+        </Input>
+        <Input>
+          <InputField
+            value={password}
+            onChangeText={setPassword}
+            autoCapitalize="none"
+            placeholder="Password"
+            secureTextEntry={true}
+          />
+        </Input>
         {loading ? (
           <ActivityIndicator />
         ) : (
           <>
-            <Button title="Login" onPress={signIn} />
-            <Button title="Register" onPress={signUp} />
+            <Button onPress={signIn}>
+              <ButtonText>Login</ButtonText>
+            </Button>
+            <Button onPress={signUp}>
+              <ButtonText>Register</ButtonText>
+            </Button>
           </>
         )}
-      </KeyboardAvoidingView>
+      </VStack>
     </View>
   );
 };

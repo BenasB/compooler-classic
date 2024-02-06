@@ -1,4 +1,4 @@
-import { Text, Button } from "react-native";
+import { Text, Button, ButtonText } from "@gluestack-ui/themed";
 import React from "react";
 import { signOut } from "firebase/auth";
 import { useRouter } from "expo-router";
@@ -13,12 +13,13 @@ const Profile = () => {
     <SafeAreaView>
       <Text>My profile</Text>
       <Button
-        title="Log out"
         onPress={async () => {
           await signOut(authState.firebase);
           router.replace("/");
         }}
-      />
+      >
+        <ButtonText>Log out</ButtonText>
+      </Button>
     </SafeAreaView>
   );
 };

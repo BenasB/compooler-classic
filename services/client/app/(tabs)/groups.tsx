@@ -1,4 +1,4 @@
-import { Text } from "react-native";
+import { Text } from "@gluestack-ui/themed";
 import React from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 

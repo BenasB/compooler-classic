@@ -1,12 +1,12 @@
 import React from "react";
 import LoginForm from "../../components/LoginForm";
-import { View } from "@gluestack-ui/themed";
+import { Center } from "@gluestack-ui/themed";
 
 const Login = () => {
   return (
-    <View>
+    <Center m="$4">
       <LoginForm />
-    </View>
+    </Center>
   );
 };
 

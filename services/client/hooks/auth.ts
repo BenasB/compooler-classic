@@ -1,6 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Constants from "expo-constants";
-import { useSegments, useRouter } from "expo-router";
 import { FirebaseOptions, initializeApp } from "firebase/app";
 import {
   Auth,
