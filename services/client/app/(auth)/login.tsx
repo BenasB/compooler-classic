@@ -1,11 +1,10 @@
-import { View, Text } from "react-native";
 import React from "react";
 import LoginForm from "../../components/LoginForm";
+import { View } from "@gluestack-ui/themed";
 
 const Login = () => {
   return (
     <View>
-      <Text>Login</Text>
       <LoginForm />
     </View>
   );
