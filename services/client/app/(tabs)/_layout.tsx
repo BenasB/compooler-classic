@@ -14,21 +14,27 @@ const Layout = () => {
         name="home"
         options={{
           tabBarLabel: "Home",
-          tabBarIcon: () => <Feather name="home" size={24} color="black" />,
+          tabBarIcon: ({ color }) => (
+            <Feather name="home" size={24} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
         name="groups"
         options={{
           tabBarLabel: "Groups",
-          tabBarIcon: () => <Feather name="users" size={24} color="black" />,
+          tabBarIcon: ({ color }) => (
+            <Feather name="users" size={24} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
           tabBarLabel: "Profile",
-          tabBarIcon: () => <Feather name="user" size={24} color="black" />,
+          tabBarIcon: ({ color }) => (
+            <Feather name="user" size={24} color={color} />
+          ),
         }}
       />
     </Tabs>

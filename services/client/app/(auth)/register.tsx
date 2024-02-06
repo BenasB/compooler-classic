@@ -1,4 +1,4 @@
-import { View, Text } from "react-native";
+import { View, Text } from "@gluestack-ui/themed";
 import React from "react";
 
 const Register = () => {

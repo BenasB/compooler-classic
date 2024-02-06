@@ -1,17 +1,29 @@
 import React from "react";
 import { Slot } from "expo-router";
-import { ActivityIndicator } from "react-native";
+import { ActivityIndicator, useColorScheme } from "react-native";
 import { AuthContextProvider, useAuthenticationRoot } from "../hooks/auth";
+import {
+  DarkTheme,
+  DefaultTheme,
+  ThemeProvider,
+} from "@react-navigation/native";
+import { GluestackUIProvider } from "@gluestack-ui/themed";
+import { config } from "@gluestack-ui/config";
 
 const AppLayout = () => {
+  const colorScheme = useColorScheme();
   const { authState } = useAuthenticationRoot();
 
   if (authState.state === "uninitialized") return <ActivityIndicator />;
 
   return (
-    <AuthContextProvider value={authState}>
-      <Slot />
-    </AuthContextProvider>
+    <GluestackUIProvider config={config} colorMode={colorScheme || undefined}>
+      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+        <AuthContextProvider value={authState}>
+          <Slot />
+        </AuthContextProvider>
+      </ThemeProvider>
+    </GluestackUIProvider>
   );
 };
 
