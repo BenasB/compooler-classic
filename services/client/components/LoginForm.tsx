@@ -73,7 +73,7 @@ const Login = () => {
             <Button onPress={signIn}>
               <ButtonText>Login</ButtonText>
             </Button>
-            <Button onPress={signUp}>
+            <Button onPress={signUp} action="secondary" variant="outline">
               <ButtonText>Register</ButtonText>
             </Button>
           </>
