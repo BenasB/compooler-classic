@@ -1,0 +1,150 @@
+import { Feather } from "@expo/vector-icons";
+import {
+  Text,
+  Accordion,
+  AccordionContent,
+  AccordionHeader,
+  AccordionIcon,
+  AccordionItem,
+  AccordionTitleText,
+  AccordionTrigger,
+  ChevronDownIcon,
+  ChevronUpIcon,
+  HStack,
+  View,
+  Center,
+  useToken,
+  Image,
+  VStack,
+  Button,
+  ButtonText,
+} from "@gluestack-ui/themed";
+import React from "react";
+import { useColorScheme } from "react-native";
+
+export enum Days {
+  Monday = 1 << 0,
+  Tuesday = 1 << 1,
+  Wednesday = 1 << 2,
+  Thursday = 1 << 3,
+  Friday = 1 << 4,
+  Saturday = 1 << 5,
+  Sunday = 1 << 6,
+}
+
+interface Coordinates {
+  latitude: number;
+  longitude: number;
+}
+
+interface Group {
+  startTime: string;
+  days: Days;
+  distanceFrom: number;
+  startLocation: Coordinates;
+  endLocation: Coordinates;
+  seats: {
+    total: number;
+    occupied: number;
+  };
+}
+
+const GroupInformation: React.FC<Group> = (group) => {
+  const colorMode = useColorScheme();
+  const color = useToken(
+    "colors",
+    colorMode === "light" ? "textLight700" : "textLight0"
+  );
+
+  return (
+    <>
+      <Accordion type="single">
+        <AccordionItem value="a">
+          <AccordionHeader>
+            <AccordionTrigger>
+              {({ isExpanded }) => {
+                return (
+                  <>
+                    <HStack mr="$1">
+                      {[...Array(7).keys()].map((i) => (
+                        <DayIcon
+                          key={i}
+                          active={(group.days & (1 << i)) > 0}
+                          dayIndex={i}
+                        />
+                      ))}
+                    </HStack>
+                    <AccordionTitleText>
+                      <Text>{group.startTime}</Text>
+                    </AccordionTitleText>
+                    <Text>~ {group.distanceFrom} m</Text>
+                    {isExpanded ? (
+                      <AccordionIcon as={ChevronUpIcon} />
+                    ) : (
+                      <AccordionIcon as={ChevronDownIcon} />
+                    )}
+                  </>
+                );
+              }}
+            </AccordionTrigger>
+          </AccordionHeader>
+          <AccordionContent>
+            <VStack space="md">
+              <Image
+                alt="Map of vilnius"
+                w={"$full"}
+                h={undefined}
+                aspectRatio={640 / 320}
+                borderRadius={5}
+                source={`https://maps.googleapis.com/maps/api/staticmap?size=640x320&key=${process.env.EXPO_PUBLIC_MAPS_API_KEY}&markers=color:green%7Clabel%3AS%7C${group.startLocation.latitude}%2C${group.startLocation.longitude}&markers=color:red%7Clabel%3AF%7C${group.endLocation.latitude}%2C${group.endLocation.longitude}`}
+              />
+              <HStack space="md">
+                <Feather name="user" size={24} color={color} />
+                <Text>
+                  {group.seats.occupied + 1}/{group.seats.total + 1}
+                </Text>
+              </HStack>
+              <Center>
+                <Button variant="outline" action="positive">
+                  <ButtonText>Request</ButtonText>
+                </Button>
+              </Center>
+            </VStack>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+    </>
+  );
+};
+
+const DayIcon: React.FC<{ dayIndex: number; active: boolean }> = ({
+  dayIndex,
+  active,
+}) => {
+  const colorMode = useColorScheme();
+  const color = useToken(
+    "colors",
+    !active
+      ? colorMode === "light"
+        ? "textLight200"
+        : "textLight700"
+      : colorMode === "light"
+      ? "textLight700"
+      : "textLight0"
+  );
+
+  const days = ["M", "T", "W", "T", "F", "S", "S"];
+
+  return (
+    <View>
+      <Feather name="calendar" size={24} color={color}></Feather>
+      <Center position="absolute" width={"$full"} height={"$4/5"} bottom={0}>
+        <Text fontSize="$2xs" color={color}>
+          {days[dayIndex]}
+        </Text>
+      </Center>
+    </View>
+  );
+};
+
+export default GroupInformation;
