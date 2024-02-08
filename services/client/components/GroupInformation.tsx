@@ -3,7 +3,6 @@ import {
   Text,
   Accordion,
   AccordionContent,
-  AccordionContentText,
   AccordionHeader,
   AccordionIcon,
   AccordionItem,
@@ -14,8 +13,11 @@ import {
   HStack,
   View,
   Center,
-  Box,
   useToken,
+  Image,
+  VStack,
+  Button,
+  ButtonText,
 } from "@gluestack-ui/themed";
 import React from "react";
 import { useColorScheme } from "react-native";
@@ -30,10 +32,17 @@ export enum Days {
   Sunday = 1 << 6,
 }
 
+interface Coordinates {
+  latitude: number;
+  longitude: number;
+}
+
 interface Group {
   startTime: string;
   days: Days;
   distanceFrom: number;
+  startLocation: Coordinates;
+  endLocation: Coordinates;
   seats: {
     total: number;
     occupied: number;
@@ -41,44 +50,69 @@ interface Group {
 }
 
 const GroupInformation: React.FC<Group> = (group) => {
+  const colorMode = useColorScheme();
+  const color = useToken(
+    "colors",
+    colorMode === "light" ? "textLight700" : "textLight0"
+  );
+
   return (
-    <Accordion type="single">
-      <AccordionItem value="a">
-        <AccordionHeader>
-          <AccordionTrigger>
-            {({ isExpanded }) => {
-              return (
-                <>
-                  <HStack mr="$1">
-                    {[...Array(7).keys()].map((i) => (
-                      <DayIcon
-                        key={i}
-                        active={(group.days & (1 << i)) > 0}
-                        dayIndex={i}
-                      />
-                    ))}
-                  </HStack>
-                  <AccordionTitleText>
-                    <Text>{group.startTime}</Text>
-                  </AccordionTitleText>
-                  <Text>~ {group.distanceFrom} m</Text>
-                  {isExpanded ? (
-                    <AccordionIcon as={ChevronUpIcon} />
-                  ) : (
-                    <AccordionIcon as={ChevronDownIcon} />
-                  )}
-                </>
-              );
-            }}
-          </AccordionTrigger>
-        </AccordionHeader>
-        <AccordionContent>
-          <AccordionContentText>
-            Description of the commute group
-          </AccordionContentText>
-        </AccordionContent>
-      </AccordionItem>
-    </Accordion>
+    <>
+      <Accordion type="single">
+        <AccordionItem value="a">
+          <AccordionHeader>
+            <AccordionTrigger>
+              {({ isExpanded }) => {
+                return (
+                  <>
+                    <HStack mr="$1">
+                      {[...Array(7).keys()].map((i) => (
+                        <DayIcon
+                          key={i}
+                          active={(group.days & (1 << i)) > 0}
+                          dayIndex={i}
+                        />
+                      ))}
+                    </HStack>
+                    <AccordionTitleText>
+                      <Text>{group.startTime}</Text>
+                    </AccordionTitleText>
+                    <Text>~ {group.distanceFrom} m</Text>
+                    {isExpanded ? (
+                      <AccordionIcon as={ChevronUpIcon} />
+                    ) : (
+                      <AccordionIcon as={ChevronDownIcon} />
+                    )}
+                  </>
+                );
+              }}
+            </AccordionTrigger>
+          </AccordionHeader>
+          <AccordionContent>
+            <VStack space="md">
+              <Image
+                alt="Map of vilnius"
+                w={"$full"}
+                h={undefined}
+                aspectRatio={640 / 320}
+                source={`https://maps.googleapis.com/maps/api/staticmap?size=640x320&key=${process.env.EXPO_PUBLIC_MAPS_API_KEY}&markers=color:green%7Clabel%3AS%7C${group.startLocation.latitude}%2C${group.startLocation.longitude}&markers=color:red%7Clabel%3AF%7C${group.endLocation.latitude}%2C${group.endLocation.longitude}`}
+              />
+              <HStack space="md">
+                <Feather name="user" size={24} color={color} />
+                <Text>
+                  {group.seats.occupied + 1}/{group.seats.total + 1}
+                </Text>
+              </HStack>
+              <Center>
+                <Button variant="outline" action="positive">
+                  <ButtonText>Request</ButtonText>
+                </Button>
+              </Center>
+            </VStack>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+    </>
   );
 };
 
