@@ -1,6 +1,5 @@
 import { Feather } from "@expo/vector-icons";
 import {
-  View,
   Text,
   Accordion,
   AccordionContent,
@@ -13,6 +12,10 @@ import {
   ChevronDownIcon,
   ChevronUpIcon,
   HStack,
+  View,
+  Center,
+  Box,
+  useToken,
 } from "@gluestack-ui/themed";
 import React from "react";
 import { useColorScheme } from "react-native";
@@ -38,8 +41,6 @@ interface Group {
 }
 
 const GroupInformation: React.FC<Group> = (group) => {
-  const colorMode = useColorScheme();
-
   return (
     <Accordion type="single">
       <AccordionItem value="a">
@@ -49,28 +50,18 @@ const GroupInformation: React.FC<Group> = (group) => {
               return (
                 <>
                   <HStack mr="$1">
-                    {[...Array(7).keys()].map((i) =>
-                      (group.days & (1 << i)) > 0 ? (
-                        <Feather
-                          name="calendar"
-                          size={24}
-                          color={colorMode === "light" ? "black" : "white"}
-                          key={i}
-                        />
-                      ) : (
-                        <Feather
-                          name="calendar"
-                          size={24}
-                          color="gray"
-                          key={i}
-                        />
-                      )
-                    )}
+                    {[...Array(7).keys()].map((i) => (
+                      <DayIcon
+                        key={i}
+                        active={(group.days & (1 << i)) > 0}
+                        dayIndex={i}
+                      />
+                    ))}
                   </HStack>
                   <AccordionTitleText>
                     <Text>{group.startTime}</Text>
                   </AccordionTitleText>
-                  <Text>{group.distanceFrom}</Text>
+                  <Text>~ {group.distanceFrom} m</Text>
                   {isExpanded ? (
                     <AccordionIcon as={ChevronUpIcon} />
                   ) : (
@@ -88,6 +79,36 @@ const GroupInformation: React.FC<Group> = (group) => {
         </AccordionContent>
       </AccordionItem>
     </Accordion>
+  );
+};
+
+const DayIcon: React.FC<{ dayIndex: number; active: boolean }> = ({
+  dayIndex,
+  active,
+}) => {
+  const colorMode = useColorScheme();
+  const color = useToken(
+    "colors",
+    !active
+      ? colorMode === "light"
+        ? "textLight200"
+        : "textLight700"
+      : colorMode === "light"
+      ? "textLight700"
+      : "textLight0"
+  );
+
+  const days = ["M", "T", "W", "T", "F", "S", "S"];
+
+  return (
+    <View>
+      <Feather name="calendar" size={24} color={color}></Feather>
+      <Center position="absolute" width={"$full"} height={"$4/5"} bottom={0}>
+        <Text fontSize="$2xs" color={color}>
+          {days[dayIndex]}
+        </Text>
+      </Center>
+    </View>
   );
 };
 
