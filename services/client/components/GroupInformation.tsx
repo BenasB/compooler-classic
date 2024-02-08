@@ -95,6 +95,7 @@ const GroupInformation: React.FC<Group> = (group) => {
                 w={"$full"}
                 h={undefined}
                 aspectRatio={640 / 320}
+                borderRadius={5}
                 source={`https://maps.googleapis.com/maps/api/staticmap?size=640x320&key=${process.env.EXPO_PUBLIC_MAPS_API_KEY}&markers=color:green%7Clabel%3AS%7C${group.startLocation.latitude}%2C${group.startLocation.longitude}&markers=color:red%7Clabel%3AF%7C${group.endLocation.latitude}%2C${group.endLocation.longitude}`}
               />
               <HStack space="md">
