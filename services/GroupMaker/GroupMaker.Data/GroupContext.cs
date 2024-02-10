@@ -5,11 +5,14 @@ namespace GroupMaker.Api;
 
 public class GroupContext(DbContextOptions<GroupContext> context) : DbContext(context)
 {
-    public DbSet<Book> Books { get; set; }
-    public DbSet<Author> Authors { get; set; }
+    public DbSet<Group> Groups { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
-        builder.Entity<Book>().HasKey(book => book.Title);
+        var groupEntity = builder.Entity<Group>();
+
+        groupEntity.HasKey(group => group.Id);
+        groupEntity.OwnsOne(x => x.StartLocation);
+        groupEntity.OwnsOne(x => x.EndLocation);
     }
 }

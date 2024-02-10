@@ -3,20 +3,29 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GroupMaker.Api", "GroupMaker.Api\GroupMaker.Api.csproj", "{3A1CEA4F-9102-400F-8529-CFFB2454BEB3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GroupMaker.Api", "GroupMaker.Api\GroupMaker.Api.csproj", "{3A1CEA4F-9102-400F-8529-CFFB2454BEB3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GroupMaker.Data", "GroupMaker.Data\GroupMaker.Data.csproj", "{80B79841-4B05-4A2E-83B4-C47758DE9679}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
-	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{3A1CEA4F-9102-400F-8529-CFFB2454BEB3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3A1CEA4F-9102-400F-8529-CFFB2454BEB3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3A1CEA4F-9102-400F-8529-CFFB2454BEB3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3A1CEA4F-9102-400F-8529-CFFB2454BEB3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{80B79841-4B05-4A2E-83B4-C47758DE9679}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{80B79841-4B05-4A2E-83B4-C47758DE9679}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{80B79841-4B05-4A2E-83B4-C47758DE9679}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{80B79841-4B05-4A2E-83B4-C47758DE9679}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {89BA34A3-56D0-46D3-B625-75DAB15EB55B}
 	EndGlobalSection
 EndGlobal

@@ -7,5 +7,5 @@ public class Query
     [UseProjection]
     [UseFiltering]
     [UseSorting]
-    public IQueryable<Book> GetBooks(GroupContext groupContext) => groupContext.Books;
+    public IQueryable<Group> GetGroups(GroupContext groupContext) => groupContext.Groups;
 }
