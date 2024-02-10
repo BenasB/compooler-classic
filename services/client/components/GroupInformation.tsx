@@ -97,7 +97,7 @@ const GroupInformation: React.FC<Group> = (group) => {
                 rel="noopener noreferrer"
               >
                 <Image
-                  alt="Map of vilnius"
+                  alt="The start location and end location of this commute group"
                   w={"$full"}
                   h={undefined}
                   aspectRatio={640 / 320}
