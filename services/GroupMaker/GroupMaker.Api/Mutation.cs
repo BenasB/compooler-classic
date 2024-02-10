@@ -1,5 +1,6 @@
 ﻿using GroupMaker.Api.Entities;
 using GroupMaker.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace GroupMaker.Api;
 
@@ -11,7 +12,8 @@ public class Mutation
         Coordinates startLocation,
         Coordinates endLocation,
         int totalSeats,
-        GroupContext context
+        GroupContext context,
+        CancellationToken cancellationToken
     )
     {
         var group = new Group()
@@ -23,8 +25,25 @@ public class Mutation
             TotalSeats = totalSeats,
         };
 
-        await context.Groups.AddAsync(group);
-        await context.SaveChangesAsync();
+        await context.Groups.AddAsync(group, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
+
+        return group;
+    }
+
+    [Error<ArgumentException>]
+    public async Task<Group?> DeleteGroup(
+        int id,
+        GroupContext context,
+        CancellationToken cancellationToken
+    )
+    {
+        var group =
+            await context.Groups.FirstOrDefaultAsync(x => x.Id == id, cancellationToken)
+            ?? throw new ArgumentException("Group does not exist", nameof(id));
+
+        context.Groups.Remove(group);
+        await context.SaveChangesAsync(cancellationToken);
 
         return group;
     }
