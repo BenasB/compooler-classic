@@ -28,19 +28,11 @@ builder
             ValidIssuer = authOptions.Issuer,
             ValidateAudience = true,
             ValidAudience = authOptions.Audience,
-            ValidateLifetime = true,
+            ValidateLifetime = !builder.Environment.IsDevelopment(),
             ValidateIssuerSigningKey = true,
             RequireSignedTokens = !builder.Environment.IsDevelopment(),
 
             NameClaimType = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"
-        };
-
-        options.Events = new()
-        {
-            OnAuthenticationFailed = context =>
-            {
-                return Task.CompletedTask;
-            }
         };
     });
 
