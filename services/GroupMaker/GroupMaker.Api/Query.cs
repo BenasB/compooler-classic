@@ -8,10 +8,6 @@ public class Query
         new()
         {
             Title = "C# in depth.",
-            Author = new Author
-            {
-                Name = "Jon Skeet"
-            }
+            Author = new Author { Name = "Jon Skeet" }
         };
 }
-
