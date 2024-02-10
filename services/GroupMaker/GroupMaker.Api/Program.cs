@@ -1,8 +1,19 @@
 using GroupMaker.Api;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddGraphQLServer().AddQueryType<Query>();
+builder.Services.AddDbContext<GroupContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("Sql"))
+);
+
+builder
+    .Services.AddGraphQLServer()
+    .RegisterDbContext<GroupContext>()
+    .AddFiltering()
+    .AddSorting()
+    .AddProjections()
+    .AddQueryType<Query>();
 
 var app = builder.Build();
 

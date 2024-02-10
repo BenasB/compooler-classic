@@ -8,3 +8,17 @@ services:
     ports:
       - 9099:9099
       - 4000:4000
+  db:
+    image: postgres
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: dev-user
+      POSTGRES_PASSWORD: dev-password
+      POSTGRES_DB: compooler
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
