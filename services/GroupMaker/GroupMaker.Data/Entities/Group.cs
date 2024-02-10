@@ -1,10 +1,10 @@
-﻿using GroupMaker.Data.Entities;
+﻿using GroupMaker.Data;
 
 namespace GroupMaker.Api.Entities;
 
 public class Group
 {
-    public required int Id { get; init; }
+    public int Id { get; init; }
 
     public required TimeOnly StartTime { get; init; }
 

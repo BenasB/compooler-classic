@@ -41,12 +41,12 @@ namespace GroupMaker.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Groups");
+                    b.ToTable("Groups", (string)null);
                 });
 
             modelBuilder.Entity("GroupMaker.Api.Entities.Group", b =>
                 {
-                    b.OwnsOne("GroupMaker.Api.Entities.Coordinates", "EndLocation", b1 =>
+                    b.OwnsOne("GroupMaker.Api.Entities.Group.EndLocation#GroupMaker.Api.Entities.Coordinates", "EndLocation", b1 =>
                         {
                             b1.Property<int>("GroupId")
                                 .HasColumnType("integer");
@@ -59,13 +59,13 @@ namespace GroupMaker.Data.Migrations
 
                             b1.HasKey("GroupId");
 
-                            b1.ToTable("Groups");
+                            b1.ToTable("Groups", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("GroupId");
                         });
 
-                    b.OwnsOne("GroupMaker.Api.Entities.Coordinates", "StartLocation", b1 =>
+                    b.OwnsOne("GroupMaker.Api.Entities.Group.StartLocation#GroupMaker.Api.Entities.Coordinates", "StartLocation", b1 =>
                         {
                             b1.Property<int>("GroupId")
                                 .HasColumnType("integer");
@@ -78,7 +78,7 @@ namespace GroupMaker.Data.Migrations
 
                             b1.HasKey("GroupId");
 
-                            b1.ToTable("Groups");
+                            b1.ToTable("Groups", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("GroupId");

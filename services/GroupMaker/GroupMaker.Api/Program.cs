@@ -1,6 +1,5 @@
 using GroupMaker.Api;
 using GroupMaker.Data;
-using GroupMaker.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,7 +19,11 @@ builder
     .AddProjections()
     .BindRuntimeType<DaysOfWeek, IntType>()
     .AddTypeConverter<DaysOfWeek, int>(source => (int)source)
-    .AddQueryType<Query>();
+    .AddTypeConverter<int, DaysOfWeek>(source => (DaysOfWeek)source)
+    .AddMutationConventions(applyToAllMutations: true)
+    .AddDefaultTransactionScopeHandler()
+    .AddQueryType<Query>()
+    .AddMutationType<Mutation>();
 
 var app = builder.Build();
 
@@ -39,6 +42,8 @@ app.MapBananaCakePop("/")
     .WithOptions(
         new()
         {
+            UseBrowserUrlAsGraphQLEndpoint = false,
+            GraphQLEndpoint = "/graphql",
             ServeMode = HotChocolate.AspNetCore.GraphQLToolServeMode.Embedded,
             Title = "GroupMaker API"
         }

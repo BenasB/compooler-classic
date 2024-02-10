@@ -1,4 +1,4 @@
-﻿namespace GroupMaker.Api.Entities;
+﻿namespace GroupMaker.Data;
 
 public class Coordinates
 {

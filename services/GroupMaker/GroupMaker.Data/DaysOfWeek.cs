@@ -1,4 +1,4 @@
-﻿namespace GroupMaker.Data.Entities;
+﻿namespace GroupMaker.Data;
 
 [Flags]
 public enum DaysOfWeek

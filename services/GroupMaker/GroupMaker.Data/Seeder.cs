@@ -11,10 +11,7 @@ public static class Seeder
             new Group()
             {
                 Id = 0,
-                Days =
-                    Entities.DaysOfWeek.Monday
-                    | Entities.DaysOfWeek.Tuesday
-                    | Entities.DaysOfWeek.Friday,
+                Days = DaysOfWeek.Monday | DaysOfWeek.Tuesday | DaysOfWeek.Friday,
                 StartLocation = new()
                 {
                     Latitude = 54.735040279783384,
@@ -31,7 +28,7 @@ public static class Seeder
             new Group()
             {
                 Id = 1,
-                Days = Entities.DaysOfWeek.Saturday | Entities.DaysOfWeek.Sunday,
+                Days = DaysOfWeek.Saturday | DaysOfWeek.Sunday,
                 StartLocation = new()
                 {
                     Latitude = 54.723054587247866,
