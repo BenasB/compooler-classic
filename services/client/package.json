@@ -9,6 +9,7 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@expo/html-elements": "^0.9.1",
     "@expo/vector-icons": "^14.0.0",
     "@expo/webpack-config": "~19.0.1",
     "@gluestack-style/react": "^1.0.45",
