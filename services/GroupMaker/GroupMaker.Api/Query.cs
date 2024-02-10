@@ -8,4 +8,8 @@ public class Query
     [UseFiltering]
     [UseSorting]
     public IQueryable<Group> GetGroups(GroupContext groupContext) => groupContext.Groups;
+
+    [UseProjection]
+    public Group? GetGroupById(int id, GroupContext groupContext) =>
+        groupContext.Groups.FirstOrDefault(g => g.Id == id);
 }
