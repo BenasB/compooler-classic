@@ -9,7 +9,8 @@ public class Query
     [UseSorting]
     public IQueryable<Group> GetGroups(GroupContext groupContext) => groupContext.Groups;
 
+    [UseFirstOrDefault]
     [UseProjection]
-    public Group? GetGroupById(int id, GroupContext groupContext) =>
-        groupContext.Groups.FirstOrDefault(g => g.Id == id);
+    public IQueryable<Group> GetGroupById(int id, GroupContext groupContext) =>
+        groupContext.Groups.Where(g => g.Id == id);
 }
