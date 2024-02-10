@@ -17,12 +17,23 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   assetBundlePatterns: ["**/*"],
   ios: {
     supportsTablet: true,
+    infoPlist: {
+      LSApplicationQueriesSchemes: ["googlemaps"],
+    },
   },
   android: {
     adaptiveIcon: {
       foregroundImage: "./assets/adaptive-icon.png",
       backgroundColor: "#ffffff",
     },
+    intentFilters: [
+      {
+        action: "ACTION_VIEW",
+        data: {
+          scheme: "google.navigation",
+        },
+      },
+    ],
   },
   web: {
     favicon: "./assets/favicon.png",

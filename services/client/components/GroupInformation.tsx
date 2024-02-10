@@ -1,3 +1,4 @@
+import { A } from "@expo/html-elements";
 import { Feather } from "@expo/vector-icons";
 import {
   Text,
@@ -90,14 +91,20 @@ const GroupInformation: React.FC<Group> = (group) => {
           </AccordionHeader>
           <AccordionContent>
             <VStack space="md">
-              <Image
-                alt="Map of vilnius"
-                w={"$full"}
-                h={undefined}
-                aspectRatio={640 / 320}
-                borderRadius={5}
-                source={`https://maps.googleapis.com/maps/api/staticmap?size=640x320&key=${process.env.EXPO_PUBLIC_MAPS_API_KEY}&markers=color:green%7Clabel%3AS%7C${group.startLocation.latitude}%2C${group.startLocation.longitude}&markers=color:red%7Clabel%3AF%7C${group.endLocation.latitude}%2C${group.endLocation.longitude}`}
-              />
+              <A
+                href={`https://www.google.com/maps/dir/?api=1&origin=${group.startLocation.latitude}%2C${group.startLocation.longitude}&destination=${group.endLocation.latitude}%2C${group.endLocation.longitude}&travelmode=driving`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Image
+                  alt="The start location and end location of this commute group"
+                  w={"$full"}
+                  h={undefined}
+                  aspectRatio={640 / 320}
+                  borderRadius={5}
+                  source={`https://maps.googleapis.com/maps/api/staticmap?size=640x320&key=${process.env.EXPO_PUBLIC_MAPS_API_KEY}&markers=color:green%7Clabel%3AS%7C${group.startLocation.latitude}%2C${group.startLocation.longitude}&markers=color:red%7Clabel%3AF%7C${group.endLocation.latitude}%2C${group.endLocation.longitude}`}
+                />
+              </A>
               <HStack space="md">
                 <Feather name="user" size={24} color={color} />
                 <Text>

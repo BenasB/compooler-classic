@@ -7,21 +7,28 @@ import {
   DefaultTheme,
   ThemeProvider,
 } from "@react-navigation/native";
-import { GluestackUIProvider } from "@gluestack-ui/themed";
+import { Center, GluestackUIProvider, Spinner } from "@gluestack-ui/themed";
 import { config } from "@gluestack-ui/config";
 
 const AppLayout = () => {
   const colorScheme = useColorScheme();
   const { authState } = useAuthenticationRoot();
 
-  if (authState.state === "uninitialized") return <ActivityIndicator />;
+  const body =
+    authState.state === "uninitialized" ? (
+      <Center h="$full">
+        <Spinner size={"large"} />
+      </Center>
+    ) : (
+      <AuthContextProvider value={authState}>
+        <Slot />
+      </AuthContextProvider>
+    );
 
   return (
     <GluestackUIProvider config={config} colorMode={colorScheme || undefined}>
       <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-        <AuthContextProvider value={authState}>
-          <Slot />
-        </AuthContextProvider>
+        {body}
       </ThemeProvider>
     </GluestackUIProvider>
   );
