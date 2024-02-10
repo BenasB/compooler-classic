@@ -4,7 +4,7 @@ services:
     volumes:
       - ./services/client/.firebaserc:/home/node/.firebaserc
       - ./services/client/firebase.json:/home/node/firebase.json
-    command: firebase emulators:start --project demo-compooler
+    command: firebase emulators:start --project dev-compooler
     ports:
       - 9099:9099
       - 4000:4000

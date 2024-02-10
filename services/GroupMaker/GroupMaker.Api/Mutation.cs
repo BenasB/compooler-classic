@@ -1,9 +1,11 @@
 ﻿using GroupMaker.Api.Entities;
 using GroupMaker.Data;
+using HotChocolate.Authorization;
 using Microsoft.EntityFrameworkCore;
 
 namespace GroupMaker.Api;
 
+[Authorize]
 public class Mutation
 {
     public async Task<Group> CreateGroup(
