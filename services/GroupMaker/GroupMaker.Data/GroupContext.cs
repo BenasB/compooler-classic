@@ -1,4 +1,4 @@
-﻿using GroupMaker.Api.Entities;
+﻿using GroupMaker.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace GroupMaker.Api;

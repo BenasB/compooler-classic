@@ -1,5 +1,5 @@
 ﻿using GroupMaker.Api;
-using GroupMaker.Api.Entities;
+using GroupMaker.Data.Entities;
 
 namespace GroupMaker.Data;
 

@@ -1,5 +1,5 @@
 ﻿using System.Security.Claims;
-using GroupMaker.Api.Entities;
+using GroupMaker.Data.Entities;
 using HotChocolate.Authorization;
 
 namespace GroupMaker.Api;
