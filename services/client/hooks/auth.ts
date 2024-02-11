@@ -33,7 +33,7 @@ const firebaseAuth = initializeAuth(firebaseApp, {
 });
 connectAuthEmulator(firebaseAuth, `http://${localIp}:9099`); // TODO: Don't always connect to emulator
 
-type State =
+export type AuthState =
   | {
       state: "loggedIn";
       user: User;
@@ -45,17 +45,17 @@ type State =
     }
   | { state: "uninitialized"; firebase: Auth };
 
-const initialAuthState: State = {
+const initialAuthState: AuthState = {
   state: "uninitialized",
   firebase: firebaseAuth,
 };
 
-const AuthContext = createContext<State>(initialAuthState);
+const AuthContext = createContext<AuthState>(initialAuthState);
 
 export const AuthContextProvider = AuthContext.Provider;
 
 export const useAuthenticationRoot = () => {
-  const [authState, setAuthState] = useState<State>(initialAuthState);
+  const [authState, setAuthState] = useState<AuthState>(initialAuthState);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(authState.firebase, (user) => {

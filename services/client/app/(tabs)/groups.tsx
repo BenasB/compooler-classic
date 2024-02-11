@@ -1,9 +1,55 @@
-import { Center, ScrollView, Text, VStack } from "@gluestack-ui/themed";
+import {
+  Center,
+  ScrollView,
+  Spinner,
+  Text,
+  VStack,
+} from "@gluestack-ui/themed";
 import React from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import GroupInformation, { Days } from "../../components/GroupInformation";
+import { gql, useQuery } from "@apollo/client";
+
+const GET_GROUPS = gql`
+  query GetGroups {
+    groups {
+      id
+      startTime
+      days
+      startLocation {
+        latitude
+        longitude
+      }
+      endLocation {
+        latitude
+        longitude
+      }
+      totalSeats
+    }
+  }
+`;
 
 const Groups = () => {
+  const { loading, error, data } = useQuery(GET_GROUPS);
+
+  if (loading)
+    return (
+      <Center h="$full">
+        <Spinner />
+      </Center>
+    );
+
+  if (error) {
+    console.log(error);
+    return (
+      <Center h="$full">
+        <Spinner color="red" />
+      </Center>
+    );
+  }
+
+  console.log(data);
+
   return (
     <ScrollView>
       <SafeAreaView>
