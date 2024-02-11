@@ -18,20 +18,22 @@ const AppLayout = () => {
   const apolloClient = useApolloRoot(authState);
 
   const body =
-    authState.state === "uninitialized" ? (
+    authState.state === "uninitialized" || apolloClient === undefined ? (
       <Center h="$full">
         <Spinner size={"large"} />
       </Center>
     ) : (
       <AuthContextProvider value={authState}>
-        <Slot />
+        <ApolloProvider client={apolloClient}>
+          <Slot />
+        </ApolloProvider>
       </AuthContextProvider>
     );
 
   return (
     <GluestackUIProvider config={config} colorMode={colorScheme || undefined}>
       <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-        <ApolloProvider client={apolloClient}>{body}</ApolloProvider>
+        {body}
       </ThemeProvider>
     </GluestackUIProvider>
   );
