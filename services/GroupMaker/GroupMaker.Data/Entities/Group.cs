@@ -1,6 +1,4 @@
-﻿using GroupMaker.Data;
-
-namespace GroupMaker.Api.Entities;
+﻿namespace GroupMaker.Data.Entities;
 
 public class Group
 {

@@ -7,13 +7,13 @@ import {
   VStack,
   SafeAreaView,
 } from "@gluestack-ui/themed";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import GroupInformation, { Days } from "../../components/GroupInformation";
 import { useQuery } from "@apollo/client";
 import { gql } from "../../__generated__/gql";
 
 const GET_GROUPS = gql(`
-  query GetGroups {
+  query GetGroups($userLocation: CoordinatesInput!) {
     groups {
       id
       startTime
@@ -21,6 +21,7 @@ const GET_GROUPS = gql(`
       startLocation {
         latitude
         longitude
+        distance(to: $userLocation)
       }
       endLocation {
         latitude
@@ -32,7 +33,14 @@ const GET_GROUPS = gql(`
 `);
 
 const Groups = () => {
-  const { loading, error, data, refetch } = useQuery(GET_GROUPS);
+  const { loading, error, data, refetch } = useQuery(GET_GROUPS, {
+    variables: {
+      userLocation: {
+        latitude: 54.72090502968378,
+        longitude: 25.28279660188754,
+      },
+    },
+  });
   const [refreshing, setRefreshing] = useState<boolean>(false);
 
   const onRefresh = useCallback(async () => {
@@ -40,6 +48,21 @@ const Groups = () => {
     await refetch();
     setRefreshing(false);
   }, []);
+
+  // TODO: Do not sort on the client :/
+  const sortedGroups = useMemo(() => {
+    if (data === undefined) return [];
+
+    return [...data.groups].sort((a, b) => {
+      if (a.startLocation.distance < b.startLocation.distance) {
+        return -1;
+      }
+      if (a.startLocation.distance > b.startLocation.distance) {
+        return 1;
+      }
+      return 0;
+    });
+  }, [data]);
 
   if (loading)
     return (
@@ -66,7 +89,7 @@ const Groups = () => {
       >
         <Center m="$5">
           <VStack space="md" $base-w={"100%"} $md-w={"60%"} $lg-w={"550px"}>
-            {data.groups.map((group) => (
+            {sortedGroups.map((group) => (
               <GroupInformation
                 startTime={group.startTime
                   .replace(/[PTM]/g, "")
@@ -74,7 +97,7 @@ const Groups = () => {
                 days={group.days}
                 startLocation={group.startLocation}
                 endLocation={group.endLocation}
-                distanceFrom={42}
+                distanceFrom={group.startLocation.distance}
                 seats={{ total: group.totalSeats, occupied: 1 }}
                 key={group.id}
               />

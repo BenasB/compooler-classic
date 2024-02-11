@@ -1,5 +1,5 @@
-﻿using GroupMaker.Api.Entities;
-using GroupMaker.Data;
+﻿using GroupMaker.Data;
+using GroupMaker.Data.Entities;
 using HotChocolate.Authorization;
 using Microsoft.EntityFrameworkCore;
 
