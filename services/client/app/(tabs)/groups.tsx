@@ -1,12 +1,13 @@
 import {
   Center,
+  RefreshControl,
   ScrollView,
   Spinner,
   Text,
   VStack,
+  SafeAreaView,
 } from "@gluestack-ui/themed";
-import React from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
+import React, { useCallback, useState } from "react";
 import GroupInformation, { Days } from "../../components/GroupInformation";
 import { useQuery } from "@apollo/client";
 import { gql } from "../../__generated__/gql";
@@ -31,7 +32,14 @@ const GET_GROUPS = gql(`
 `);
 
 const Groups = () => {
-  const { loading, error, data } = useQuery(GET_GROUPS);
+  const { loading, error, data, refetch } = useQuery(GET_GROUPS);
+  const [refreshing, setRefreshing] = useState<boolean>(false);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await refetch();
+    setRefreshing(false);
+  }, []);
 
   if (loading)
     return (
@@ -49,8 +57,13 @@ const Groups = () => {
   }
 
   return (
-    <ScrollView>
-      <SafeAreaView>
+    <SafeAreaView>
+      <ScrollView
+        h="$full"
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
         <Center m="$5">
           <VStack space="md" $base-w={"100%"} $md-w={"60%"} $lg-w={"550px"}>
             {data.groups.map((group) => (
@@ -68,8 +81,8 @@ const Groups = () => {
             ))}
           </VStack>
         </Center>
-      </SafeAreaView>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
