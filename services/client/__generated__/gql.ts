@@ -13,7 +13,7 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  * Therefore it is highly recommended to use the babel or swc plugin for production.
  */
 const documents = {
-    "\n  query GetGroups {\n    groups {\n      id\n      startTime\n      days\n      startLocation {\n        latitude\n        longitude\n      }\n      endLocation {\n        latitude\n        longitude\n      }\n      totalSeats\n    }\n  }\n": types.GetGroupsDocument,
+    "\n  query GetGroups($userLocation: CoordinatesInput!) {\n    groups {\n      id\n      startTime\n      days\n      startLocation {\n        latitude\n        longitude\n        distance(to: $userLocation)\n      }\n      endLocation {\n        latitude\n        longitude\n      }\n      totalSeats\n    }\n  }\n": types.GetGroupsDocument,
 };
 
 /**
@@ -33,7 +33,7 @@ export function gql(source: string): unknown;
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  query GetGroups {\n    groups {\n      id\n      startTime\n      days\n      startLocation {\n        latitude\n        longitude\n      }\n      endLocation {\n        latitude\n        longitude\n      }\n      totalSeats\n    }\n  }\n"): (typeof documents)["\n  query GetGroups {\n    groups {\n      id\n      startTime\n      days\n      startLocation {\n        latitude\n        longitude\n      }\n      endLocation {\n        latitude\n        longitude\n      }\n      totalSeats\n    }\n  }\n"];
+export function gql(source: "\n  query GetGroups($userLocation: CoordinatesInput!) {\n    groups {\n      id\n      startTime\n      days\n      startLocation {\n        latitude\n        longitude\n        distance(to: $userLocation)\n      }\n      endLocation {\n        latitude\n        longitude\n      }\n      totalSeats\n    }\n  }\n"): (typeof documents)["\n  query GetGroups($userLocation: CoordinatesInput!) {\n    groups {\n      id\n      startTime\n      days\n      startLocation {\n        latitude\n        longitude\n        distance(to: $userLocation)\n      }\n      endLocation {\n        latitude\n        longitude\n      }\n      totalSeats\n    }\n  }\n"];
 
 export function gql(source: string) {
   return (documents as any)[source] ?? {};

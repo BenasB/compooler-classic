@@ -78,7 +78,7 @@ const GroupInformation: React.FC<Group> = (group) => {
                     <AccordionTitleText>
                       <Text>{group.startTime}</Text>
                     </AccordionTitleText>
-                    <Text>~ {group.distanceFrom} m</Text>
+                    <Text>~ {group.distanceFrom.toFixed()} m</Text>
                     {isExpanded ? (
                       <AccordionIcon as={ChevronUpIcon} />
                     ) : (
