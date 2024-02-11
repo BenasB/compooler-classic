@@ -38,6 +38,22 @@ builder
 
 builder.Services.AddAuthorization();
 
+var corsOptions = builder.Configuration.GetSection(CorsOptions.Key).Get<CorsOptions>();
+
+if (corsOptions != null)
+{
+    builder.Services.AddCors(options =>
+    {
+        options.AddPolicy(
+            CorsOptions.PolicyName,
+            policy =>
+            {
+                policy.WithOrigins(corsOptions.AllowedOrigins).AllowAnyHeader().AllowAnyMethod();
+            }
+        );
+    });
+}
+
 builder
     .Services.AddGraphQLServer()
     .AddAuthorization()
@@ -64,6 +80,9 @@ using (var scope = app.Services.CreateScope())
         await Seeder.SeedAsync(context);
     }
 }
+
+if (corsOptions != null)
+    app.UseCors(CorsOptions.PolicyName);
 
 app.UseAuthentication();
 app.UseAuthorization();
