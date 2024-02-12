@@ -122,6 +122,9 @@ public class Mutation
         if (group.Passengers.Any(passenger => passenger == user))
             throw new ArgumentException("User is already one of the passengers");
 
+        if (group.Passengers.Count + 1 > group.TotalSeats)
+            throw new ArgumentException("There are no more seats left");
+
         group.Passengers.Add(user);
         await context.SaveChangesAsync(cancellationToken);
 
