@@ -1,4 +1,6 @@
-﻿using GroupMaker.Data;
+﻿using System.Security.Authentication;
+using System.Security.Claims;
+using GroupMaker.Data;
 using GroupMaker.Data.Entities;
 using HotChocolate.Authorization;
 using Microsoft.EntityFrameworkCore;
@@ -8,6 +10,7 @@ namespace GroupMaker.Api;
 [Authorize]
 public class Mutation
 {
+    [Error<AuthenticationException>]
     public async Task<Group> CreateGroup(
         TimeOnly startTime,
         DaysOfWeek days,
@@ -15,9 +18,25 @@ public class Mutation
         Coordinates endLocation,
         int totalSeats,
         GroupContext context,
+        ClaimsPrincipal claimsPrincipal,
         CancellationToken cancellationToken
     )
     {
+        var driverId =
+            claimsPrincipal.Identity?.Name
+            ?? throw new AuthenticationException("Failed to determine the current user's name");
+
+        var driverUser = await context.Users.FirstOrDefaultAsync(
+            u => u.Id == driverId,
+            cancellationToken: cancellationToken
+        );
+
+        if (driverUser == null)
+        {
+            driverUser = new User { Id = driverId };
+            await context.Users.AddAsync(driverUser, cancellationToken);
+        }
+
         var group = new Group()
         {
             StartTime = startTime,
@@ -25,6 +44,7 @@ public class Mutation
             StartLocation = startLocation,
             EndLocation = endLocation,
             TotalSeats = totalSeats,
+            Driver = driverUser
         };
 
         await context.Groups.AddAsync(group, cancellationToken);

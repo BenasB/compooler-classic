@@ -13,4 +13,8 @@ public class Group
     public required Coordinates EndLocation { get; init; }
 
     public required int TotalSeats { get; init; }
+
+    public required User Driver { get; init; }
+
+    public List<User> Passengers { get; init; } = [];
 }

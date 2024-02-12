@@ -7,6 +7,14 @@ public static class Seeder
 {
     public static async Task SeedAsync(GroupContext context)
     {
+        var users = new List<User>()
+        {
+            new() { Id = "fake-seeded-user" },
+            new() { Id = "another-fake-seeded-user" }
+        };
+
+        await context.Users.AddRangeAsync(users);
+
         await context.Groups.AddRangeAsync(
             new Group()
             {
@@ -23,7 +31,8 @@ public static class Seeder
                     Longitude = 25.272272176425833
                 },
                 StartTime = new TimeOnly(8, 45),
-                TotalSeats = 4
+                TotalSeats = 4,
+                Driver = users[0]
             },
             new Group()
             {
@@ -40,7 +49,9 @@ public static class Seeder
                     Longitude = 25.283379334720742
                 },
                 StartTime = new TimeOnly(7, 15),
-                TotalSeats = 3
+                TotalSeats = 3,
+                Driver = users[1],
+                Passengers = { users[0] }
             }
         );
 
