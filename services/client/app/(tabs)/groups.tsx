@@ -11,10 +11,18 @@ import React, { useCallback, useMemo, useState } from "react";
 import GroupInformation, { Days } from "../../components/GroupInformation";
 import { useQuery } from "@apollo/client";
 import { gql } from "../../__generated__/gql";
+import { usePrivateAuthContext } from "../../hooks/auth";
 
 const GET_GROUPS = gql(`
-  query GetGroups($userLocation: CoordinatesInput!) {
-    groups {
+  query GetGroups($userLocation: CoordinatesInput!, $currentUserId: String!) {
+    groups(
+      where: {
+        and: [
+          { driver: { id: { neq: $currentUserId } } }
+          { passengers: { none: { id: { eq: $currentUserId } } } }
+        ]
+      }
+    ) {
       id
       startTime
       days
@@ -28,17 +36,23 @@ const GET_GROUPS = gql(`
         longitude
       }
       totalSeats
+      passengers {
+        id
+      }
     }
   }
 `);
 
 const Groups = () => {
+  const { user } = usePrivateAuthContext();
+
   const { loading, error, data, refetch } = useQuery(GET_GROUPS, {
     variables: {
       userLocation: {
         latitude: 54.72090502968378,
         longitude: 25.28279660188754,
       },
+      currentUserId: user.uid,
     },
   });
   const [refreshing, setRefreshing] = useState<boolean>(false);
@@ -98,7 +112,10 @@ const Groups = () => {
                 startLocation={group.startLocation}
                 endLocation={group.endLocation}
                 distanceFrom={group.startLocation.distance}
-                seats={{ total: group.totalSeats, occupied: 1 }}
+                seats={{
+                  total: group.totalSeats,
+                  occupied: group.passengers.length,
+                }}
                 key={group.id}
               />
             ))}
