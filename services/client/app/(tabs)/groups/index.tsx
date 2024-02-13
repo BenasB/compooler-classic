@@ -6,12 +6,15 @@ import {
   Text,
   VStack,
   SafeAreaView,
+  Button,
+  ButtonText,
 } from "@gluestack-ui/themed";
 import React, { useCallback, useMemo, useState } from "react";
-import GroupInformation from "../../components/groups/GroupInformation";
+import GroupInformation from "../../../components/groups/GroupInformation";
 import { useQuery } from "@apollo/client";
-import { gql } from "../../__generated__/gql";
-import { usePrivateAuthContext } from "../../hooks/auth";
+import { gql } from "../../../__generated__/gql";
+import { usePrivateAuthContext } from "../../../hooks/auth";
+import { Link, Stack } from "expo-router";
 
 const GET_JOINABLE_GROUPS = gql(`
   query GetJoinableGroups($userLocation: CoordinatesInput!, $currentUserId: String!) {
@@ -78,50 +81,53 @@ const Groups = () => {
     });
   }, [data]);
 
-  if (loading)
-    return (
-      <Center h="$full">
-        <Spinner />
-      </Center>
-    );
-
-  if (error || data === undefined) {
-    return (
-      <Center h="$full">
-        <Text>Whoops! Ran into an error :/</Text>
-      </Center>
-    );
-  }
+  const body = loading ? (
+    <Spinner />
+  ) : error || data === undefined ? (
+    <Text>Whoops! Ran into an error :/</Text>
+  ) : (
+    <>
+      <VStack space="md">
+        {sortedGroups.map((group) => (
+          <GroupInformation
+            startTime={group.startTime.replace(/[PTM]/g, "").replace("H", ":")}
+            days={group.days}
+            startLocation={group.startLocation}
+            endLocation={group.endLocation}
+            distanceFrom={group.startLocation.distance}
+            seats={{
+              total: group.totalSeats,
+              occupied: group.passengers.length,
+            }}
+            key={group.id}
+          />
+        ))}
+      </VStack>
+    </>
+  );
 
   return (
-    <SafeAreaView>
-      <ScrollView
-        h="$full"
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-      >
-        <Center m="$5">
-          <VStack space="md" $base-w={"100%"} $md-w={"60%"} $lg-w={"550px"}>
-            {sortedGroups.map((group) => (
-              <GroupInformation
-                startTime={group.startTime
-                  .replace(/[PTM]/g, "")
-                  .replace("H", ":")}
-                days={group.days}
-                startLocation={group.startLocation}
-                endLocation={group.endLocation}
-                distanceFrom={group.startLocation.distance}
-                seats={{
-                  total: group.totalSeats,
-                  occupied: group.passengers.length,
-                }}
-                key={group.id}
-              />
-            ))}
-          </VStack>
-        </Center>
-      </ScrollView>
+    <SafeAreaView h="$full">
+      <Stack.Screen options={{ title: "My groups" }} />
+      <Center h="$full" p="$5">
+        <VStack space="md" h="$full">
+          <ScrollView
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }
+            $base-w={"100%"}
+            $md-w={"60%"}
+            $lg-w={"550px"}
+          >
+            {body}
+          </ScrollView>
+          <Link href={"/groups/join"} asChild>
+            <Button action="positive">
+              <ButtonText>Join a new group</ButtonText>
+            </Button>
+          </Link>
+        </VStack>
+      </Center>
     </SafeAreaView>
   );
 };
