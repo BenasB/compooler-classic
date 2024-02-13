@@ -12,10 +12,9 @@ import {
 import React, { useCallback, useMemo, useState } from "react";
 import GroupInformation from "../../../components/groups/GroupInformation";
 import { useMutation, useQuery } from "@apollo/client";
-import { gql } from "../../../__generated__/gql";
 import { usePrivateAuthContext } from "../../../hooks/auth";
-import { Stack, router } from "expo-router";
-import { GET_USER_GROUPS } from ".";
+import { Stack, router, useFocusEffect } from "expo-router";
+import { gql } from "../../../__generated__";
 
 const GET_JOINABLE_GROUPS = gql(`
   query GetJoinableGroups($userLocation: CoordinatesInput!, $currentUserId: String!) {
@@ -50,7 +49,7 @@ const GET_JOINABLE_GROUPS = gql(`
 const JOIN_GROUP = gql(`
   mutation JoinGroup($groupId: Int!){
     joinGroup(input: {id: $groupId}){
-      group{
+      group {
         id
       }
       errors {
@@ -78,6 +77,7 @@ const Join = () => {
       },
       currentUserId: user.uid,
     },
+    notifyOnNetworkStatusChange: true,
   });
 
   const [
@@ -88,9 +88,13 @@ const Join = () => {
       error: mutationError,
       called: mutationCalled,
     },
-  ] = useMutation(JOIN_GROUP, {
-    refetchQueries: [GET_JOINABLE_GROUPS, GET_USER_GROUPS],
-  });
+  ] = useMutation(JOIN_GROUP);
+
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+    }, [])
+  );
 
   const [refreshing, setRefreshing] = useState<boolean>(false);
 
@@ -154,7 +158,7 @@ const Join = () => {
                       groupId: group.id,
                     },
                   });
-                  router.replace("/groups");
+                  router.navigate("/groups");
                 }}
               >
                 <ButtonText>Join</ButtonText>
@@ -169,14 +173,17 @@ const Join = () => {
     <SafeAreaView h="$full">
       <Stack.Screen options={{ title: "Join a new group" }} />
       <Center h="$full" p="$5">
-        <VStack space="md" h="$full">
+        <VStack
+          space="md"
+          h="$full"
+          $base-w={"100%"}
+          $md-w={"60%"}
+          $lg-w={"550px"}
+        >
           <ScrollView
             refreshControl={
               <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
             }
-            $base-w={"100%"}
-            $md-w={"60%"}
-            $lg-w={"550px"}
           >
             {body}
           </ScrollView>
