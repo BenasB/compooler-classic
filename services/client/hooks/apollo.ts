@@ -64,7 +64,7 @@ export const useApolloRoot = (authState: AuthState) => {
         await client.resetStore();
       } else if (authState.state === "loggedOut") {
         client.setLink(httpLink);
-        await client.resetStore();
+        await client.clearStore();
       }
     };
 

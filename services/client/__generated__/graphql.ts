@@ -18,6 +18,18 @@ export type Scalars = {
   TimeSpan: { input: string; output: string; }
 };
 
+export type AbandonGroupError = ArgumentError | AuthenticationError;
+
+export type AbandonGroupInput = {
+  id: Scalars['Int']['input'];
+};
+
+export type AbandonGroupPayload = {
+  __typename?: 'AbandonGroupPayload';
+  errors?: Maybe<Array<AbandonGroupError>>;
+  group?: Maybe<Group>;
+};
+
 export enum ApplyPolicy {
   AfterResolver = 'AFTER_RESOLVER',
   BeforeResolver = 'BEFORE_RESOLVER',
@@ -28,6 +40,11 @@ export type ArgumentError = Error & {
   __typename?: 'ArgumentError';
   message: Scalars['String']['output'];
   paramName?: Maybe<Scalars['String']['output']>;
+};
+
+export type AuthenticationError = Error & {
+  __typename?: 'AuthenticationError';
+  message: Scalars['String']['output'];
 };
 
 export type Coordinates = {
@@ -59,6 +76,8 @@ export type CoordinatesSortInput = {
   longitude?: InputMaybe<SortEnumType>;
 };
 
+export type CreateGroupError = AuthenticationError;
+
 export type CreateGroupInput = {
   days: Scalars['Int']['input'];
   endLocation: CoordinatesInput;
@@ -69,6 +88,7 @@ export type CreateGroupInput = {
 
 export type CreateGroupPayload = {
   __typename?: 'CreateGroupPayload';
+  errors?: Maybe<Array<CreateGroupError>>;
   group?: Maybe<Group>;
 };
 
@@ -79,7 +99,7 @@ export type DaysOfWeekOperationFilterInput = {
   nin?: InputMaybe<Array<Scalars['Int']['input']>>;
 };
 
-export type DeleteGroupError = ArgumentError;
+export type DeleteGroupError = ArgumentError | AuthenticationError;
 
 export type DeleteGroupInput = {
   id: Scalars['Int']['input'];
@@ -88,7 +108,7 @@ export type DeleteGroupInput = {
 export type DeleteGroupPayload = {
   __typename?: 'DeleteGroupPayload';
   errors?: Maybe<Array<DeleteGroupError>>;
-  group?: Maybe<Group>;
+  id?: Maybe<Scalars['Int']['output']>;
 };
 
 export type Error = {
@@ -113,8 +133,10 @@ export type FloatOperationFilterInput = {
 export type Group = {
   __typename?: 'Group';
   days: Scalars['Int']['output'];
+  driver: User;
   endLocation: Coordinates;
   id: Scalars['Int']['output'];
+  passengers: Array<User>;
   startLocation: Coordinates;
   startTime: Scalars['TimeSpan']['output'];
   totalSeats: Scalars['Int']['output'];
@@ -123,9 +145,11 @@ export type Group = {
 export type GroupFilterInput = {
   and?: InputMaybe<Array<GroupFilterInput>>;
   days?: InputMaybe<DaysOfWeekOperationFilterInput>;
+  driver?: InputMaybe<UserFilterInput>;
   endLocation?: InputMaybe<CoordinatesFilterInput>;
   id?: InputMaybe<IntOperationFilterInput>;
   or?: InputMaybe<Array<GroupFilterInput>>;
+  passengers?: InputMaybe<ListFilterInputTypeOfUserFilterInput>;
   startLocation?: InputMaybe<CoordinatesFilterInput>;
   startTime?: InputMaybe<TimeSpanOperationFilterInput>;
   totalSeats?: InputMaybe<IntOperationFilterInput>;
@@ -133,6 +157,7 @@ export type GroupFilterInput = {
 
 export type GroupSortInput = {
   days?: InputMaybe<SortEnumType>;
+  driver?: InputMaybe<UserSortInput>;
   endLocation?: InputMaybe<CoordinatesSortInput>;
   id?: InputMaybe<SortEnumType>;
   startLocation?: InputMaybe<CoordinatesSortInput>;
@@ -155,10 +180,43 @@ export type IntOperationFilterInput = {
   nlte?: InputMaybe<Scalars['Int']['input']>;
 };
 
+export type JoinGroupError = ArgumentError | AuthenticationError;
+
+export type JoinGroupInput = {
+  id: Scalars['Int']['input'];
+};
+
+export type JoinGroupPayload = {
+  __typename?: 'JoinGroupPayload';
+  errors?: Maybe<Array<JoinGroupError>>;
+  group?: Maybe<Group>;
+};
+
+export type ListFilterInputTypeOfGroupFilterInput = {
+  all?: InputMaybe<GroupFilterInput>;
+  any?: InputMaybe<Scalars['Boolean']['input']>;
+  none?: InputMaybe<GroupFilterInput>;
+  some?: InputMaybe<GroupFilterInput>;
+};
+
+export type ListFilterInputTypeOfUserFilterInput = {
+  all?: InputMaybe<UserFilterInput>;
+  any?: InputMaybe<Scalars['Boolean']['input']>;
+  none?: InputMaybe<UserFilterInput>;
+  some?: InputMaybe<UserFilterInput>;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
+  abandonGroup: AbandonGroupPayload;
   createGroup: CreateGroupPayload;
   deleteGroup: DeleteGroupPayload;
+  joinGroup: JoinGroupPayload;
+};
+
+
+export type MutationAbandonGroupArgs = {
+  input: AbandonGroupInput;
 };
 
 
@@ -169,6 +227,11 @@ export type MutationCreateGroupArgs = {
 
 export type MutationDeleteGroupArgs = {
   input: DeleteGroupInput;
+};
+
+
+export type MutationJoinGroupArgs = {
+  input: JoinGroupInput;
 };
 
 export type Query = {
@@ -194,6 +257,21 @@ export enum SortEnumType {
   Desc = 'DESC'
 }
 
+export type StringOperationFilterInput = {
+  and?: InputMaybe<Array<StringOperationFilterInput>>;
+  contains?: InputMaybe<Scalars['String']['input']>;
+  endsWith?: InputMaybe<Scalars['String']['input']>;
+  eq?: InputMaybe<Scalars['String']['input']>;
+  in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  ncontains?: InputMaybe<Scalars['String']['input']>;
+  nendsWith?: InputMaybe<Scalars['String']['input']>;
+  neq?: InputMaybe<Scalars['String']['input']>;
+  nin?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  nstartsWith?: InputMaybe<Scalars['String']['input']>;
+  or?: InputMaybe<Array<StringOperationFilterInput>>;
+  startsWith?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type TimeSpanOperationFilterInput = {
   eq?: InputMaybe<Scalars['TimeSpan']['input']>;
   gt?: InputMaybe<Scalars['TimeSpan']['input']>;
@@ -209,12 +287,57 @@ export type TimeSpanOperationFilterInput = {
   nlte?: InputMaybe<Scalars['TimeSpan']['input']>;
 };
 
-export type GetGroupsQueryVariables = Exact<{
+export type User = {
+  __typename?: 'User';
+  driving: Array<Group>;
+  id: Scalars['String']['output'];
+  passengering: Array<Group>;
+};
+
+export type UserFilterInput = {
+  and?: InputMaybe<Array<UserFilterInput>>;
+  driving?: InputMaybe<ListFilterInputTypeOfGroupFilterInput>;
+  id?: InputMaybe<StringOperationFilterInput>;
+  or?: InputMaybe<Array<UserFilterInput>>;
+  passengering?: InputMaybe<ListFilterInputTypeOfGroupFilterInput>;
+};
+
+export type UserSortInput = {
+  id?: InputMaybe<SortEnumType>;
+};
+
+export type GetUserGroupsQueryVariables = Exact<{
   userLocation: CoordinatesInput;
+  currentUserId: Scalars['String']['input'];
 }>;
 
 
-export type GetGroupsQuery = { __typename?: 'Query', groups: Array<{ __typename?: 'Group', id: number, startTime: string, days: number, totalSeats: number, startLocation: { __typename?: 'Coordinates', latitude: number, longitude: number, distance: number }, endLocation: { __typename?: 'Coordinates', latitude: number, longitude: number } }> };
+export type GetUserGroupsQuery = { __typename?: 'Query', groups: Array<{ __typename?: 'Group', id: number, startTime: string, days: number, totalSeats: number, driver: { __typename?: 'User', id: string }, startLocation: { __typename?: 'Coordinates', latitude: number, longitude: number, distance: number }, endLocation: { __typename?: 'Coordinates', latitude: number, longitude: number }, passengers: Array<{ __typename?: 'User', id: string }> }> };
+
+export type LeaveGroupMutationVariables = Exact<{
+  groupId: Scalars['Int']['input'];
+}>;
 
 
-export const GetGroupsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetGroups"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"userLocation"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CoordinatesInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"groups"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"startTime"}},{"kind":"Field","name":{"kind":"Name","value":"days"}},{"kind":"Field","name":{"kind":"Name","value":"startLocation"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"latitude"}},{"kind":"Field","name":{"kind":"Name","value":"longitude"}},{"kind":"Field","name":{"kind":"Name","value":"distance"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"to"},"value":{"kind":"Variable","name":{"kind":"Name","value":"userLocation"}}}]}]}},{"kind":"Field","name":{"kind":"Name","value":"endLocation"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"latitude"}},{"kind":"Field","name":{"kind":"Name","value":"longitude"}}]}},{"kind":"Field","name":{"kind":"Name","value":"totalSeats"}}]}}]}}]} as unknown as DocumentNode<GetGroupsQuery, GetGroupsQueryVariables>;
+export type LeaveGroupMutation = { __typename?: 'Mutation', abandonGroup: { __typename?: 'AbandonGroupPayload', group?: { __typename?: 'Group', id: number } | null, errors?: Array<{ __typename?: 'ArgumentError', message: string } | { __typename?: 'AuthenticationError', message: string }> | null } };
+
+export type GetJoinableGroupsQueryVariables = Exact<{
+  userLocation: CoordinatesInput;
+  currentUserId: Scalars['String']['input'];
+}>;
+
+
+export type GetJoinableGroupsQuery = { __typename?: 'Query', groups: Array<{ __typename?: 'Group', id: number, startTime: string, days: number, totalSeats: number, startLocation: { __typename?: 'Coordinates', latitude: number, longitude: number, distance: number }, endLocation: { __typename?: 'Coordinates', latitude: number, longitude: number }, passengers: Array<{ __typename?: 'User', id: string }> }> };
+
+export type JoinGroupMutationVariables = Exact<{
+  groupId: Scalars['Int']['input'];
+}>;
+
+
+export type JoinGroupMutation = { __typename?: 'Mutation', joinGroup: { __typename?: 'JoinGroupPayload', group?: { __typename?: 'Group', id: number } | null, errors?: Array<{ __typename?: 'ArgumentError', message: string } | { __typename?: 'AuthenticationError', message: string }> | null } };
+
+
+export const GetUserGroupsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetUserGroups"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"userLocation"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CoordinatesInput"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"currentUserId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"groups"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"or"},"value":{"kind":"ListValue","values":[{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"driver"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"id"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"currentUserId"}}}]}}]}}]},{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"passengers"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"some"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"id"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"currentUserId"}}}]}}]}}]}}]}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"startTime"}},{"kind":"Field","name":{"kind":"Name","value":"days"}},{"kind":"Field","name":{"kind":"Name","value":"driver"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"Field","name":{"kind":"Name","value":"startLocation"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"latitude"}},{"kind":"Field","name":{"kind":"Name","value":"longitude"}},{"kind":"Field","name":{"kind":"Name","value":"distance"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"to"},"value":{"kind":"Variable","name":{"kind":"Name","value":"userLocation"}}}]}]}},{"kind":"Field","name":{"kind":"Name","value":"endLocation"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"latitude"}},{"kind":"Field","name":{"kind":"Name","value":"longitude"}}]}},{"kind":"Field","name":{"kind":"Name","value":"totalSeats"}},{"kind":"Field","name":{"kind":"Name","value":"passengers"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]}}]} as unknown as DocumentNode<GetUserGroupsQuery, GetUserGroupsQueryVariables>;
+export const LeaveGroupDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"LeaveGroup"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"groupId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"abandonGroup"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"groupId"}}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"group"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"Field","name":{"kind":"Name","value":"errors"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Error"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"message"}}]}}]}}]}}]}}]} as unknown as DocumentNode<LeaveGroupMutation, LeaveGroupMutationVariables>;
+export const GetJoinableGroupsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetJoinableGroups"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"userLocation"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CoordinatesInput"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"currentUserId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"groups"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"and"},"value":{"kind":"ListValue","values":[{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"driver"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"id"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"neq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"currentUserId"}}}]}}]}}]},{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"passengers"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"none"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"id"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"currentUserId"}}}]}}]}}]}}]}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"startTime"}},{"kind":"Field","name":{"kind":"Name","value":"days"}},{"kind":"Field","name":{"kind":"Name","value":"startLocation"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"latitude"}},{"kind":"Field","name":{"kind":"Name","value":"longitude"}},{"kind":"Field","name":{"kind":"Name","value":"distance"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"to"},"value":{"kind":"Variable","name":{"kind":"Name","value":"userLocation"}}}]}]}},{"kind":"Field","name":{"kind":"Name","value":"endLocation"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"latitude"}},{"kind":"Field","name":{"kind":"Name","value":"longitude"}}]}},{"kind":"Field","name":{"kind":"Name","value":"totalSeats"}},{"kind":"Field","name":{"kind":"Name","value":"passengers"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]}}]} as unknown as DocumentNode<GetJoinableGroupsQuery, GetJoinableGroupsQueryVariables>;
+export const JoinGroupDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"JoinGroup"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"groupId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"joinGroup"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"groupId"}}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"group"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"Field","name":{"kind":"Name","value":"errors"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Error"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"message"}}]}}]}}]}}]}}]} as unknown as DocumentNode<JoinGroupMutation, JoinGroupMutationVariables>;
