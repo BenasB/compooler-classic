@@ -91,7 +91,7 @@ const Groups = () => {
       error: mutationError,
       called: mutationCalled,
     },
-  ] = useMutation(LEAVE_GROUP);
+  ] = useMutation(LEAVE_GROUP, { refetchQueries: [GET_USER_GROUPS] });
 
   useFocusEffect(
     useCallback(() => {

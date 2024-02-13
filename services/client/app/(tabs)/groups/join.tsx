@@ -88,7 +88,7 @@ const Join = () => {
       error: mutationError,
       called: mutationCalled,
     },
-  ] = useMutation(JOIN_GROUP);
+  ] = useMutation(JOIN_GROUP); // Don't need to refetch GET_JOINABLE_GROUPS since we'll be navigated off this page
 
   useFocusEffect(
     useCallback(() => {
