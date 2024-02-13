@@ -8,13 +8,13 @@ import {
   SafeAreaView,
 } from "@gluestack-ui/themed";
 import React, { useCallback, useMemo, useState } from "react";
-import GroupInformation, { Days } from "../../components/GroupInformation";
+import GroupInformation from "../../components/groups/GroupInformation";
 import { useQuery } from "@apollo/client";
 import { gql } from "../../__generated__/gql";
 import { usePrivateAuthContext } from "../../hooks/auth";
 
-const GET_GROUPS = gql(`
-  query GetGroups($userLocation: CoordinatesInput!, $currentUserId: String!) {
+const GET_JOINABLE_GROUPS = gql(`
+  query GetJoinableGroups($userLocation: CoordinatesInput!, $currentUserId: String!) {
     groups(
       where: {
         and: [
@@ -46,7 +46,7 @@ const GET_GROUPS = gql(`
 const Groups = () => {
   const { user } = usePrivateAuthContext();
 
-  const { loading, error, data, refetch } = useQuery(GET_GROUPS, {
+  const { loading, error, data, refetch } = useQuery(GET_JOINABLE_GROUPS, {
     variables: {
       userLocation: {
         latitude: 54.72090502968378,

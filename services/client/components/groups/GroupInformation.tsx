@@ -23,7 +23,7 @@ import {
 import React from "react";
 import { useColorScheme } from "react-native";
 
-export enum Days {
+enum Days {
   Monday = 1 << 0,
   Tuesday = 1 << 1,
   Wednesday = 1 << 2,
