@@ -174,7 +174,12 @@ const Groups = () => {
           </ScrollView>
           <Link href={"/groups/join"} asChild>
             <Button action="positive">
-              <ButtonText>Join a new group</ButtonText>
+              <ButtonText>Join a group</ButtonText>
+            </Button>
+          </Link>
+          <Link href={"/groups/create"} asChild>
+            <Button action="secondary" variant="solid">
+              <ButtonText>Create a new group</ButtonText>
             </Button>
           </Link>
         </VStack>

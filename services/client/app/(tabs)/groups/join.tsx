@@ -171,7 +171,7 @@ const Join = () => {
 
   return (
     <SafeAreaView h="$full">
-      <Stack.Screen options={{ title: "Join a new group" }} />
+      <Stack.Screen options={{ title: "Join a group" }} />
       <Center h="$full" p="$5">
         <VStack
           space="md"
