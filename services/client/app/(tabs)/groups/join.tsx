@@ -11,45 +11,66 @@ import {
 } from "@gluestack-ui/themed";
 import React, { useCallback, useMemo, useState } from "react";
 import GroupInformation from "../../../components/groups/GroupInformation";
-import { useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { gql } from "../../../__generated__/gql";
 import { usePrivateAuthContext } from "../../../hooks/auth";
-import { Link, Stack } from "expo-router";
+import { Stack, router } from "expo-router";
+import { GET_USER_GROUPS } from ".";
 
 const GET_JOINABLE_GROUPS = gql(`
-    query GetJoinableGroups($userLocation: CoordinatesInput!, $currentUserId: String!) {
-      groups(
-        where: {
-          and: [
-            { driver: { id: { neq: $currentUserId } } }
-            { passengers: { none: { id: { eq: $currentUserId } } } }
-          ]
-        }
-      ) {
+  query GetJoinableGroups($userLocation: CoordinatesInput!, $currentUserId: String!) {
+    groups(
+      where: {
+        and: [
+          { driver: { id: { neq: $currentUserId } } }
+          { passengers: { none: { id: { eq: $currentUserId } } } }
+        ]
+      }
+    ) {
+      id
+      startTime
+      days
+      startLocation {
+        latitude
+        longitude
+        distance(to: $userLocation)
+      }
+      endLocation {
+        latitude
+        longitude
+      }
+      totalSeats
+      passengers {
         id
-        startTime
-        days
-        startLocation {
-          latitude
-          longitude
-          distance(to: $userLocation)
-        }
-        endLocation {
-          latitude
-          longitude
-        }
-        totalSeats
-        passengers {
-          id
-        }
       }
     }
-  `);
+  }
+`);
+
+const JOIN_GROUP = gql(`
+  mutation JoinGroup($groupId: Int!){
+    joinGroup(input: {id: $groupId}){
+      group{
+        id
+      }
+      errors {
+        ... on Error{
+          message
+        }
+      }
+    } 
+  }
+`);
 
 const Join = () => {
   const { user } = usePrivateAuthContext();
 
-  const { loading, error, data, refetch } = useQuery(GET_JOINABLE_GROUPS, {
+  const {
+    loading: queryLoading,
+    error: queryError,
+    data: queryData,
+    refetch,
+  } = useQuery(GET_JOINABLE_GROUPS, {
     variables: {
       userLocation: {
         latitude: 54.72090502968378,
@@ -58,6 +79,19 @@ const Join = () => {
       currentUserId: user.uid,
     },
   });
+
+  const [
+    mutateFunction,
+    {
+      data: mutationData,
+      loading: mutationLoading,
+      error: mutationError,
+      called: mutationCalled,
+    },
+  ] = useMutation(JOIN_GROUP, {
+    refetchQueries: [GET_JOINABLE_GROUPS, GET_USER_GROUPS],
+  });
+
   const [refreshing, setRefreshing] = useState<boolean>(false);
 
   const onRefresh = useCallback(async () => {
@@ -68,9 +102,9 @@ const Join = () => {
 
   // TODO: Do not sort on the client :/
   const sortedGroups = useMemo(() => {
-    if (data === undefined) return [];
+    if (queryData === undefined) return [];
 
-    return [...data.groups].sort((a, b) => {
+    return [...queryData.groups].sort((a, b) => {
       if (a.startLocation.distance < b.startLocation.distance) {
         return -1;
       }
@@ -79,37 +113,57 @@ const Join = () => {
       }
       return 0;
     });
-  }, [data]);
+  }, [queryData]);
 
-  const body = loading ? (
-    <Spinner />
-  ) : error || data === undefined ? (
-    <Text>Whoops! Ran into an error :/</Text>
-  ) : (
-    <VStack space="md">
-      {sortedGroups.map((group) => (
-        <GroupInformation
-          key={group.id}
-          group={{
-            startTime: group.startTime.replace(/[PTM]/g, "").replace("H", ":"),
-            days: group.days,
-            startLocation: group.startLocation,
-            endLocation: group.endLocation,
-            distanceFrom: group.startLocation.distance,
-            seats: {
-              total: group.totalSeats,
-              occupied: group.passengers.length,
-            },
-          }}
-          button={
-            <Button variant="outline" action="positive">
-              <ButtonText>Request</ButtonText>
-            </Button>
-          }
-        />
-      ))}
-    </VStack>
-  );
+  const body =
+    queryLoading || mutationLoading ? (
+      <Spinner />
+    ) : queryError || queryData === undefined ? (
+      <Text>Whoops! Ran into an error :/</Text>
+    ) : mutationCalled && (mutationError || mutationData === undefined) ? (
+      <Text>Whoops! Ran into an error when joining a group :/</Text>
+    ) : queryData.groups.length === 0 ? (
+      <Text color="$secondary400" textAlign="center">
+        Seems like there are no new groups you can join :/
+      </Text>
+    ) : (
+      <VStack space="md">
+        {sortedGroups.map((group) => (
+          <GroupInformation
+            key={group.id}
+            group={{
+              startTime: group.startTime
+                .replace(/[PTM]/g, "")
+                .replace("H", ":"),
+              days: group.days,
+              startLocation: group.startLocation,
+              endLocation: group.endLocation,
+              distanceFrom: group.startLocation.distance,
+              seats: {
+                total: group.totalSeats,
+                occupied: group.passengers.length,
+              },
+            }}
+            button={
+              <Button
+                variant="outline"
+                action="positive"
+                onPress={async () => {
+                  await mutateFunction({
+                    variables: {
+                      groupId: group.id,
+                    },
+                  });
+                  router.replace("/groups");
+                }}
+              >
+                <ButtonText>Join</ButtonText>
+              </Button>
+            }
+          />
+        ))}
+      </VStack>
+    );
 
   return (
     <SafeAreaView h="$full">

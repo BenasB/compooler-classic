@@ -16,7 +16,7 @@ import { gql } from "../../../__generated__/gql";
 import { usePrivateAuthContext } from "../../../hooks/auth";
 import { Link, Stack } from "expo-router";
 
-const GET_USER_GROUPS = gql(`
+export const GET_USER_GROUPS = gql(`
   query GetUserGroups($userLocation: CoordinatesInput!, $currentUserId: String!) {
     groups(
       where: {
