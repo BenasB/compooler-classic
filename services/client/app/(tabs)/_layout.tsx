@@ -13,9 +13,9 @@ const Layout = () => {
       <Tabs.Screen
         name="home"
         options={{
-          tabBarLabel: "Home",
+          tabBarLabel: "Rides",
           tabBarIcon: ({ color }) => (
-            <Feather name="home" size={24} color={color} />
+            <Feather name="compass" size={24} color={color} />
           ),
         }}
       />

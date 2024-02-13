@@ -17,8 +17,6 @@ import {
   useToken,
   Image,
   VStack,
-  Button,
-  ButtonText,
 } from "@gluestack-ui/themed";
 import React from "react";
 import { useColorScheme } from "react-native";
@@ -50,7 +48,12 @@ interface Group {
   };
 }
 
-const GroupInformation: React.FC<Group> = (group) => {
+interface Props {
+  group: Group;
+  button?: React.JSX.Element;
+}
+
+const GroupInformation: React.FC<Props> = ({ group, button }) => {
   const colorMode = useColorScheme();
   const color = useToken(
     "colors",
@@ -111,11 +114,7 @@ const GroupInformation: React.FC<Group> = (group) => {
                   {group.seats.occupied + 1}/{group.seats.total + 1}
                 </Text>
               </HStack>
-              <Center>
-                <Button variant="outline" action="positive">
-                  <ButtonText>Request</ButtonText>
-                </Button>
-              </Center>
+              <Center>{button}</Center>
             </VStack>
           </AccordionContent>
         </AccordionItem>

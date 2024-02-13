@@ -9,26 +9,29 @@ import {
   Button,
   ButtonText,
 } from "@gluestack-ui/themed";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useState } from "react";
 import GroupInformation from "../../../components/groups/GroupInformation";
 import { useQuery } from "@apollo/client";
 import { gql } from "../../../__generated__/gql";
 import { usePrivateAuthContext } from "../../../hooks/auth";
 import { Link, Stack } from "expo-router";
 
-const GET_JOINABLE_GROUPS = gql(`
-  query GetJoinableGroups($userLocation: CoordinatesInput!, $currentUserId: String!) {
+const GET_USER_GROUPS = gql(`
+  query GetUserGroups($userLocation: CoordinatesInput!, $currentUserId: String!) {
     groups(
       where: {
-        and: [
-          { driver: { id: { neq: $currentUserId } } }
-          { passengers: { none: { id: { eq: $currentUserId } } } }
+        or: [
+          { driver: { id: { eq: $currentUserId } } }
+          { passengers: { some: { id: { eq: $currentUserId } } } }
         ]
       }
     ) {
       id
       startTime
       days
+      driver {
+        id
+      }
       startLocation {
         latitude
         longitude
@@ -49,7 +52,7 @@ const GET_JOINABLE_GROUPS = gql(`
 const Groups = () => {
   const { user } = usePrivateAuthContext();
 
-  const { loading, error, data, refetch } = useQuery(GET_JOINABLE_GROUPS, {
+  const { loading, error, data, refetch } = useQuery(GET_USER_GROUPS, {
     variables: {
       userLocation: {
         latitude: 54.72090502968378,
@@ -66,44 +69,40 @@ const Groups = () => {
     setRefreshing(false);
   }, []);
 
-  // TODO: Do not sort on the client :/
-  const sortedGroups = useMemo(() => {
-    if (data === undefined) return [];
-
-    return [...data.groups].sort((a, b) => {
-      if (a.startLocation.distance < b.startLocation.distance) {
-        return -1;
-      }
-      if (a.startLocation.distance > b.startLocation.distance) {
-        return 1;
-      }
-      return 0;
-    });
-  }, [data]);
-
   const body = loading ? (
     <Spinner />
   ) : error || data === undefined ? (
     <Text>Whoops! Ran into an error :/</Text>
+  ) : data.groups.length === 0 ? (
+    <Text color="$secondary400" textAlign="center">
+      Seems like you don't have any groups yet!
+    </Text>
   ) : (
-    <>
-      <VStack space="md">
-        {sortedGroups.map((group) => (
-          <GroupInformation
-            startTime={group.startTime.replace(/[PTM]/g, "").replace("H", ":")}
-            days={group.days}
-            startLocation={group.startLocation}
-            endLocation={group.endLocation}
-            distanceFrom={group.startLocation.distance}
-            seats={{
+    <VStack space="md">
+      {data.groups.map((group) => (
+        <GroupInformation
+          key={group.id}
+          group={{
+            startTime: group.startTime.replace(/[PTM]/g, "").replace("H", ":"),
+            days: group.days,
+            startLocation: group.startLocation,
+            endLocation: group.endLocation,
+            distanceFrom: group.startLocation.distance,
+            seats: {
               total: group.totalSeats,
               occupied: group.passengers.length,
-            }}
-            key={group.id}
-          />
-        ))}
-      </VStack>
-    </>
+            },
+          }}
+          button={
+            <Button variant="outline" action="negative">
+              <ButtonText>
+                {group.driver.id === user.uid ? "Disband" : "Leave"}
+              </ButtonText>
+            </Button>
+          }
+        />
+      ))}
+    </VStack>
   );
 
   return (
