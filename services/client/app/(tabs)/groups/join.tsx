@@ -64,6 +64,11 @@ const JOIN_GROUP = gql(`
 const Join = () => {
   const { user } = usePrivateAuthContext();
 
+  const userLocation = {
+    latitude: 54.72090502968378,
+    longitude: 25.28279660188754,
+  };
+
   const {
     loading: queryLoading,
     error: queryError,
@@ -71,10 +76,7 @@ const Join = () => {
     refetch,
   } = useQuery(GET_JOINABLE_GROUPS, {
     variables: {
-      userLocation: {
-        latitude: 54.72090502968378,
-        longitude: 25.28279660188754,
-      },
+      userLocation: userLocation,
       currentUserId: user.uid,
     },
     notifyOnNetworkStatusChange: true,

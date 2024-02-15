@@ -12,15 +12,19 @@ import {
   FormControlLabelText,
   HStack,
   SafeAreaView,
+  Text,
   VStack,
   View,
 } from "@gluestack-ui/themed";
 import React, { useMemo, useState } from "react";
 import TimePicker from "../../../components/TimePicker";
-import { Stack } from "expo-router";
+import { Link, Stack, useLocalSearchParams } from "expo-router";
 import { Days } from "../../../types/group";
 
 const Create = () => {
+  const params = useLocalSearchParams();
+  console.log(params);
+
   const [time, setTime] = useState(new Date());
   const [days, setDays] = useState<Days | 0>(0);
 
@@ -77,6 +81,19 @@ const Create = () => {
               <FormControlHelper>
                 <FormControlHelperText>
                   Select the days this group will be commuting
+                </FormControlHelperText>
+              </FormControlHelper>
+            </FormControl>
+            <Link href={"/groups/locationSelection"}>
+              <Text>Hello lol</Text>
+            </Link>
+            <FormControl>
+              <FormControlLabel mb="$1">
+                <FormControlLabelText>Start location</FormControlLabelText>
+              </FormControlLabel>
+              <FormControlHelper>
+                <FormControlHelperText>
+                  Select the time the group leaves the starting point
                 </FormControlHelperText>
               </FormControlHelper>
             </FormControl>
