@@ -14,6 +14,8 @@ import {
   ModalFooter,
   ButtonText,
   SafeAreaView,
+  Pressable,
+  View,
 } from "@gluestack-ui/themed";
 
 interface Props {
@@ -33,16 +35,49 @@ const LocationPicker: React.FC<Props> = ({
   });
 
   useEffect(() => {
-    setRegion((prevRegion) => ({ ...prevRegion, ...startingCoordinates }));
+    setRegion({
+      ...startingCoordinates,
+      latitudeDelta: 0.03,
+      longitudeDelta: 0.03,
+    });
   }, [startingCoordinates, showModal]);
 
   const markerColor = useToken("colors", "red600");
 
   return (
     <>
-      <Button onPress={() => setShowModal(true)}>
-        <ButtonText>Starting location</ButtonText>
-      </Button>
+      <Pressable onPress={() => setShowModal(true)}>
+        <MapView
+          style={{
+            width: "100%",
+            height: 200,
+            borderRadius: 5,
+          }}
+          provider={PROVIDER_GOOGLE}
+          region={{
+            ...startingCoordinates,
+            latitudeDelta: 0.005,
+            longitudeDelta: 0.005,
+          }}
+          scrollEnabled={false}
+          rotateEnabled={false}
+          pitchEnabled={false}
+          zoomEnabled={false}
+        >
+          <MaterialIcons
+            name="location-pin"
+            size={36}
+            color={markerColor}
+            style={{
+              left: "50%",
+              marginLeft: -18,
+              marginTop: -36,
+              position: "absolute",
+              top: "50%",
+            }}
+          />
+        </MapView>
+      </Pressable>
       <Modal
         isOpen={showModal}
         onClose={() => {
@@ -68,18 +103,20 @@ const LocationPicker: React.FC<Props> = ({
               }}
               initialRegion={region}
             >
-              <MaterialIcons
-                name="location-pin"
-                size={36}
-                color={markerColor}
-                style={{
-                  left: "50%",
-                  marginLeft: -18,
-                  marginTop: -36,
-                  position: "absolute",
-                  top: "50%",
-                }}
-              />
+              <View flex={1} pointerEvents="none">
+                <MaterialIcons
+                  name="location-pin"
+                  size={36}
+                  color={markerColor}
+                  style={{
+                    left: "50%",
+                    marginLeft: -18,
+                    marginTop: -36,
+                    position: "absolute",
+                    top: "50%",
+                  }}
+                />
+              </View>
             </MapView>
             <ModalFooter>
               <Button

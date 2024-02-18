@@ -1,6 +1,4 @@
 import {
-  Button,
-  ButtonText,
   Center,
   CheckIcon,
   Checkbox,
@@ -89,7 +87,7 @@ const Create = () => {
                 </FormControlHelperText>
               </FormControlHelper>
             </FormControl>
-            <FormControl>
+            <FormControl isRequired={true}>
               <FormControlLabel mb="$1">
                 <FormControlLabelText>Start location</FormControlLabelText>
               </FormControlLabel>
