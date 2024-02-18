@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import MapView, { LatLng, PROVIDER_GOOGLE, Region } from "react-native-maps";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useToken } from "@gluestack-style/react";
 import {
@@ -17,29 +16,20 @@ import {
   Pressable,
   View,
 } from "@gluestack-ui/themed";
+import { Coordinates } from "../types/group";
+import Map from "./Map";
 
 interface Props {
-  startingCoordinates: LatLng;
-  onConfirm: (newCoordinates: LatLng) => void;
+  startingCoordinates: Coordinates;
+  onConfirm: (newCoordinates: Coordinates) => void;
 }
 
-const LocationPicker: React.FC<Props> = ({
-  startingCoordinates,
-  onConfirm,
-}) => {
+const LocationPicker = ({ startingCoordinates, onConfirm }: Props) => {
   const [showModal, setShowModal] = useState<boolean>(false);
-  const [region, setRegion] = useState<Region>({
-    ...startingCoordinates,
-    latitudeDelta: 0.03,
-    longitudeDelta: 0.03,
-  });
+  const [location, setLocation] = useState<Coordinates>(startingCoordinates);
 
   useEffect(() => {
-    setRegion({
-      ...startingCoordinates,
-      latitudeDelta: 0.03,
-      longitudeDelta: 0.03,
-    });
+    setLocation(startingCoordinates);
   }, [startingCoordinates, showModal]);
 
   const markerColor = useToken("colors", "red600");
@@ -47,22 +37,14 @@ const LocationPicker: React.FC<Props> = ({
   return (
     <>
       <Pressable onPress={() => setShowModal(true)}>
-        <MapView
+        <Map
           style={{
             width: "100%",
             height: 200,
             borderRadius: 5,
           }}
-          provider={PROVIDER_GOOGLE}
-          region={{
-            ...startingCoordinates,
-            latitudeDelta: 0.005,
-            longitudeDelta: 0.005,
-          }}
-          scrollEnabled={false}
-          rotateEnabled={false}
-          pitchEnabled={false}
-          zoomEnabled={false}
+          initialLocation={location}
+          readOnly={true}
         >
           <MaterialIcons
             name="location-pin"
@@ -76,7 +58,7 @@ const LocationPicker: React.FC<Props> = ({
               top: "50%",
             }}
           />
-        </MapView>
+        </Map>
       </Pressable>
       <Modal
         isOpen={showModal}
@@ -93,15 +75,15 @@ const LocationPicker: React.FC<Props> = ({
                 <Icon as={CloseIcon} />
               </ModalCloseButton>
             </ModalHeader>
-            <MapView
+            <Map
               style={{
                 flex: 1,
               }}
-              provider={PROVIDER_GOOGLE}
-              onRegionChangeComplete={(region) => {
-                setRegion(region);
+              readOnly={false}
+              onLocationChange={(newLoc) => {
+                setLocation(newLoc);
               }}
-              initialRegion={region}
+              initialLocation={location}
             >
               <View flex={1} pointerEvents="none">
                 <MaterialIcons
@@ -117,13 +99,13 @@ const LocationPicker: React.FC<Props> = ({
                   }}
                 />
               </View>
-            </MapView>
+            </Map>
             <ModalFooter>
               <Button
                 action="positive"
                 w="$full"
                 onPress={() => {
-                  onConfirm(region);
+                  onConfirm(location);
                   setShowModal(false);
                 }}
               >

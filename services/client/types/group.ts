@@ -7,3 +7,8 @@ export enum Days {
   Saturday = 1 << 5,
   Sunday = 1 << 6,
 }
+
+export interface Coordinates {
+  latitude: number;
+  longitude: number;
+}

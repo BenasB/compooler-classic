@@ -7,7 +7,7 @@ interface Props {
   onChange: (newDate: Date) => void;
 }
 
-const TimePickerNative: React.FC<Props> = ({ time, onChange }) => {
+const TimePickerNative = ({ time, onChange }: Props) => {
   return (
     <DateTimePicker
       value={time}
@@ -17,7 +17,7 @@ const TimePickerNative: React.FC<Props> = ({ time, onChange }) => {
   );
 };
 
-const TimePickerWeb: React.FC<Props> = ({ time, onChange }) => {
+const TimePickerWeb = ({ time, onChange }: Props) => {
   const hours = time.getHours();
   const minutes = time.getMinutes();
   const formattedTime = `${String(hours).padStart(2, "0")}:${String(
