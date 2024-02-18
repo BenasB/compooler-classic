@@ -1,4 +1,6 @@
 import {
+  Button,
+  ButtonText,
   Center,
   CheckIcon,
   Checkbox,
@@ -18,15 +20,18 @@ import {
 } from "@gluestack-ui/themed";
 import React, { useMemo, useState } from "react";
 import TimePicker from "../../../components/TimePicker";
-import { Link, Stack, useLocalSearchParams } from "expo-router";
+import { Stack } from "expo-router";
 import { Days } from "../../../types/group";
+import LocationPicker from "../../../components/LocationPicker";
+import { LatLng } from "react-native-maps";
 
 const Create = () => {
-  const params = useLocalSearchParams();
-  console.log(params);
-
   const [time, setTime] = useState(new Date());
   const [days, setDays] = useState<Days | 0>(0);
+  const [startLocation, setStartLocation] = useState<LatLng>({
+    latitude: 54.72090502968378,
+    longitude: 25.28279660188754,
+  });
 
   const dayInfo = useMemo(() => {
     const enumArray = Object.values(Days);
@@ -84,16 +89,20 @@ const Create = () => {
                 </FormControlHelperText>
               </FormControlHelper>
             </FormControl>
-            <Link href={"/groups/locationSelection"}>
-              <Text>Hello lol</Text>
-            </Link>
             <FormControl>
               <FormControlLabel mb="$1">
                 <FormControlLabelText>Start location</FormControlLabelText>
               </FormControlLabel>
+              <LocationPicker
+                startingCoordinates={startLocation}
+                onConfirm={(newLocation) => setStartLocation(newLocation)}
+              />
+              <Text>
+                {startLocation.latitude}, {startLocation.longitude}
+              </Text>
               <FormControlHelper>
                 <FormControlHelperText>
-                  Select the time the group leaves the starting point
+                  Select the starting point of the group
                 </FormControlHelperText>
               </FormControlHelper>
             </FormControl>
