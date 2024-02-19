@@ -34,7 +34,7 @@ import {
 } from "@gluestack-ui/themed";
 import React, { useMemo, useState } from "react";
 import TimePicker from "../../../components/TimePicker";
-import { Stack } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import { Coordinates, Days } from "../../../types/group";
 import LocationPicker from "../../../components/LocationPicker";
 
@@ -52,6 +52,8 @@ type ValidatableInput<T> = { value: T } & (
 );
 
 const Create = () => {
+  const router = useRouter();
+
   const [time, setTime] = useState(new Date());
   const [days, setDays] = useState<ValidatableInput<Days | 0>>({
     validation: "pending",
@@ -77,6 +79,27 @@ const Create = () => {
 
     return keys.map((k, i) => ({ name: k, value: values[i] }));
   }, []);
+
+  const setValidatedDays = (value: Days | 0) => {
+    if (value === 0)
+      setDays({
+        validation: "failure",
+        value: value,
+        error: "There must be at least one week day in the schedule",
+      });
+    else
+      setDays({
+        validation: "success",
+        value: value,
+      });
+  };
+
+  const onSubmit = () => {
+    setValidatedDays(days.value);
+    if (days.validation !== "success") return;
+    console.log("should do mutation");
+    router.navigate("/groups");
+  };
 
   return (
     <SafeAreaView flex={1}>
@@ -112,19 +135,7 @@ const Create = () => {
                       aria-label={name}
                       key={name}
                       onChange={(_) => {
-                        var newValue = days.value ^ value;
-                        if (newValue === 0)
-                          setDays({
-                            validation: "failure",
-                            value: newValue,
-                            error:
-                              "There must be at least one week day in the schedule",
-                          });
-                        else
-                          setDays({
-                            validation: "success",
-                            value: newValue,
-                          });
+                        setValidatedDays(days.value ^ value);
                       }}
                     >
                       <CheckboxIndicator mr="$2">
@@ -212,7 +223,11 @@ const Create = () => {
                   </FormControlHelperText>
                 </FormControlHelper>
               </FormControl>
-              <Button action="positive">
+              <Button
+                action="positive"
+                onPress={onSubmit}
+                isDisabled={days.validation === "failure"}
+              >
                 <ButtonText>Create</ButtonText>
               </Button>
             </VStack>
