@@ -31,7 +31,9 @@ const firebaseAuth = initializeAuth(firebaseApp, {
       ? browserLocalPersistence
       : getReactNativePersistence(AsyncStorage),
 });
-connectAuthEmulator(firebaseAuth, `http://${localIp}:9099`); // TODO: Don't always connect to emulator
+connectAuthEmulator(firebaseAuth, `http://${localIp}:9099`, {
+  disableWarnings: true,
+}); // TODO: Don't always connect to emulator
 
 export type AuthState =
   | {

@@ -64,6 +64,11 @@ const JOIN_GROUP = gql(`
 const Join = () => {
   const { user } = usePrivateAuthContext();
 
+  const userLocation = {
+    latitude: 54.72090502968378,
+    longitude: 25.28279660188754,
+  };
+
   const {
     loading: queryLoading,
     error: queryError,
@@ -71,10 +76,7 @@ const Join = () => {
     refetch,
   } = useQuery(GET_JOINABLE_GROUPS, {
     variables: {
-      userLocation: {
-        latitude: 54.72090502968378,
-        longitude: 25.28279660188754,
-      },
+      userLocation: userLocation,
       currentUserId: user.uid,
     },
     notifyOnNetworkStatusChange: true,
@@ -138,7 +140,9 @@ const Join = () => {
             group={{
               startTime: group.startTime
                 .replace(/[PTM]/g, "")
-                .replace("H", ":"),
+                .split("H")
+                .map((x) => x.padStart(2, "0"))
+                .join(":"),
               days: group.days,
               startLocation: group.startLocation,
               endLocation: group.endLocation,
@@ -172,23 +176,23 @@ const Join = () => {
   return (
     <SafeAreaView h="$full">
       <Stack.Screen options={{ title: "Join a group" }} />
-      <Center h="$full" p="$5">
-        <VStack
-          space="md"
-          h="$full"
-          $base-w={"100%"}
-          $md-w={"60%"}
-          $lg-w={"550px"}
-        >
-          <ScrollView
-            refreshControl={
-              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-            }
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
+        <Center h="$full" p="$5">
+          <VStack
+            space="md"
+            h="$full"
+            $base-w={"100%"}
+            $md-w={"60%"}
+            $lg-w={"550px"}
           >
             {body}
-          </ScrollView>
-        </VStack>
-      </Center>
+          </VStack>
+        </Center>
+      </ScrollView>
     </SafeAreaView>
   );
 };

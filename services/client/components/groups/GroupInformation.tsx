@@ -20,21 +20,7 @@ import {
 } from "@gluestack-ui/themed";
 import React from "react";
 import { useColorScheme } from "react-native";
-
-enum Days {
-  Monday = 1 << 0,
-  Tuesday = 1 << 1,
-  Wednesday = 1 << 2,
-  Thursday = 1 << 3,
-  Friday = 1 << 4,
-  Saturday = 1 << 5,
-  Sunday = 1 << 6,
-}
-
-interface Coordinates {
-  latitude: number;
-  longitude: number;
-}
+import { Coordinates, Days } from "../../types/group";
 
 interface Group {
   startTime: string;
@@ -53,7 +39,7 @@ interface Props {
   button?: React.JSX.Element;
 }
 
-const GroupInformation: React.FC<Props> = ({ group, button }) => {
+const GroupInformation = ({ group, button }: Props) => {
   const colorMode = useColorScheme();
   const color = useToken(
     "colors",
@@ -111,7 +97,7 @@ const GroupInformation: React.FC<Props> = ({ group, button }) => {
               <HStack space="md">
                 <Feather name="user" size={24} color={color} />
                 <Text>
-                  {group.seats.occupied + 1}/{group.seats.total + 1}
+                  {group.seats.occupied + 1}/{group.seats.total}
                 </Text>
               </HStack>
               <Center>{button}</Center>
@@ -123,9 +109,12 @@ const GroupInformation: React.FC<Props> = ({ group, button }) => {
   );
 };
 
-const DayIcon: React.FC<{ dayIndex: number; active: boolean }> = ({
+const DayIcon = ({
   dayIndex,
   active,
+}: {
+  dayIndex: number;
+  active: boolean;
 }) => {
   const colorMode = useColorScheme();
   const color = useToken(

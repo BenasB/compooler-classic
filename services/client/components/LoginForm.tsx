@@ -1,4 +1,4 @@
-import { ActivityIndicator, StyleSheet } from "react-native";
+import { ActivityIndicator } from "react-native";
 import {
   Button,
   Input,
@@ -84,5 +84,3 @@ const Login = () => {
 };
 
 export default Login;
-
-const styles = StyleSheet.create({});
