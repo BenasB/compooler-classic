@@ -13,6 +13,7 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  * Therefore it is highly recommended to use the babel or swc plugin for production.
  */
 const documents = {
+    "\n  mutation CreateGroup($input: CreateGroupInput!){\n    createGroup(input: $input){\n      group {\n        id\n      }\n      errors {\n        ... on Error{\n          message\n        }\n      }\n    } \n  }\n": types.CreateGroupDocument,
     "\n  query GetUserGroups($userLocation: CoordinatesInput!, $currentUserId: String!) {\n    groups(\n      where: {\n        or: [\n          { driver: { id: { eq: $currentUserId } } }\n          { passengers: { some: { id: { eq: $currentUserId } } } }\n        ]\n      }\n    ) {\n      id\n      startTime\n      days\n      driver {\n        id\n      }\n      startLocation {\n        latitude\n        longitude\n        distance(to: $userLocation)\n      }\n      endLocation {\n        latitude\n        longitude\n      }\n      totalSeats\n      passengers {\n        id\n      }\n    }\n  }\n": types.GetUserGroupsDocument,
     "\n  mutation LeaveGroup($groupId: Int!){\n    abandonGroup(input: {id: $groupId}){\n      group {\n        id\n      }\n      errors {\n        ... on Error{\n          message\n        }\n      }\n    } \n  }\n": types.LeaveGroupDocument,
     "\n  query GetJoinableGroups($userLocation: CoordinatesInput!, $currentUserId: String!) {\n    groups(\n      where: {\n        and: [\n          { driver: { id: { neq: $currentUserId } } }\n          { passengers: { none: { id: { eq: $currentUserId } } } }\n        ]\n      }\n    ) {\n      id\n      startTime\n      days\n      startLocation {\n        latitude\n        longitude\n        distance(to: $userLocation)\n      }\n      endLocation {\n        latitude\n        longitude\n      }\n      totalSeats\n      passengers {\n        id\n      }\n    }\n  }\n": types.GetJoinableGroupsDocument,
@@ -33,6 +34,10 @@ const documents = {
  */
 export function gql(source: string): unknown;
 
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation CreateGroup($input: CreateGroupInput!){\n    createGroup(input: $input){\n      group {\n        id\n      }\n      errors {\n        ... on Error{\n          message\n        }\n      }\n    } \n  }\n"): (typeof documents)["\n  mutation CreateGroup($input: CreateGroupInput!){\n    createGroup(input: $input){\n      group {\n        id\n      }\n      errors {\n        ... on Error{\n          message\n        }\n      }\n    } \n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

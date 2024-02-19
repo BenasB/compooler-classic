@@ -140,7 +140,9 @@ const Join = () => {
             group={{
               startTime: group.startTime
                 .replace(/[PTM]/g, "")
-                .replace("H", ":"),
+                .split("H")
+                .map((x) => x.padStart(2, "0"))
+                .join(":"),
               days: group.days,
               startLocation: group.startLocation,
               endLocation: group.endLocation,

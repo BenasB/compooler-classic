@@ -16,7 +16,7 @@ import { usePrivateAuthContext } from "../../../hooks/auth";
 import { Link, Stack, useFocusEffect } from "expo-router";
 import { gql } from "../../../__generated__";
 
-export const GET_USER_GROUPS = gql(`
+const GET_USER_GROUPS = gql(`
   query GetUserGroups($userLocation: CoordinatesInput!, $currentUserId: String!) {
     groups(
       where: {
@@ -49,7 +49,7 @@ export const GET_USER_GROUPS = gql(`
   }
 `);
 
-export const LEAVE_GROUP = gql(`
+const LEAVE_GROUP = gql(`
   mutation LeaveGroup($groupId: Int!){
     abandonGroup(input: {id: $groupId}){
       group {
@@ -126,7 +126,9 @@ const Groups = () => {
             group={{
               startTime: group.startTime
                 .replace(/[PTM]/g, "")
-                .replace("H", ":"),
+                .split("H")
+                .map((x) => x.padStart(2, "0"))
+                .join(":"),
               days: group.days,
               startLocation: group.startLocation,
               endLocation: group.endLocation,
