@@ -37,32 +37,32 @@ const LocationPicker = ({ startingCoordinates, onConfirm }: Props) => {
 
   if (Platform.OS === "web") {
     return (
-      <Map
-        style={{
-          width: "100%",
-          height: 300,
-          borderRadius: 5,
-        }}
-        initialLocation={location}
-        readOnly={false}
-        onLocationChange={(newLoc) => {
-          setLocation(newLoc);
-          onConfirm(newLoc);
-        }}
-      >
-        <MaterialIcons
-          name="location-pin"
-          size={36}
-          color={markerColor}
+      <View w="$full" h={300}>
+        <Map
           style={{
-            left: "50%",
-            marginLeft: -18,
-            marginTop: -36,
-            position: "absolute",
-            top: "50%",
+            borderRadius: 5,
           }}
-        />
-      </Map>
+          initialLocation={location}
+          readOnly={false}
+          onLocationChange={(newLoc) => {
+            setLocation(newLoc);
+            onConfirm(newLoc);
+          }}
+        >
+          <MaterialIcons
+            name="location-pin"
+            size={36}
+            color={markerColor}
+            style={{
+              left: "50%",
+              marginLeft: -18,
+              marginTop: -36,
+              position: "absolute",
+              top: "50%",
+            }}
+          />
+        </Map>
+      </View>
     );
   }
 
