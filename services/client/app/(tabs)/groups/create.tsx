@@ -170,7 +170,7 @@ const Create = () => {
           <FormControlLabelText>Schedule</FormControlLabelText>
         </FormControlLabel>
         <VStack space="sm">
-          {dayInfo.map(({ name, value }, i) => (
+          {dayInfo.map(({ name, value }) => (
             <Checkbox
               value={name}
               aria-label={name}

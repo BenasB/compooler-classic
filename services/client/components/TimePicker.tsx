@@ -11,7 +11,7 @@ const TimePickerNative = ({ time, onChange }: Props) => {
   return (
     <DateTimePicker
       value={time}
-      onChange={(e, d) => onChange(d || new Date())}
+      onChange={(_, d) => onChange(d || new Date())}
       mode="time"
     />
   );
