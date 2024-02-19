@@ -18,6 +18,7 @@ import {
 } from "@gluestack-ui/themed";
 import { Coordinates } from "../types/group";
 import Map from "./Map";
+import { Platform } from "react-native";
 
 interface Props {
   startingCoordinates: Coordinates;
@@ -33,6 +34,37 @@ const LocationPicker = ({ startingCoordinates, onConfirm }: Props) => {
   }, [startingCoordinates, showModal]);
 
   const markerColor = useToken("colors", "red600");
+
+  if (Platform.OS === "web") {
+    return (
+      <Map
+        style={{
+          width: "100%",
+          height: 300,
+          borderRadius: 5,
+        }}
+        initialLocation={location}
+        readOnly={false}
+        onLocationChange={(newLoc) => {
+          setLocation(newLoc);
+          onConfirm(newLoc);
+        }}
+      >
+        <MaterialIcons
+          name="location-pin"
+          size={36}
+          color={markerColor}
+          style={{
+            left: "50%",
+            marginLeft: -18,
+            marginTop: -36,
+            position: "absolute",
+            top: "50%",
+          }}
+        />
+      </Map>
+    );
+  }
 
   return (
     <>

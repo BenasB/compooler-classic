@@ -1,8 +1,8 @@
-import { Map } from "@vis.gl/react-google-maps";
 import React from "react";
-import { Platform, StyleProp, ViewStyle } from "react-native";
+import { StyleProp, ViewStyle } from "react-native";
 import { Coordinates } from "../types/group";
-import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
+import { Region } from "react-native-maps";
+import MapView from "./MapView";
 
 type Props = {
   initialLocation: Coordinates;
@@ -18,14 +18,18 @@ type Props = {
     }
 );
 
-const NativeMap = (props: Props) => {
+const Map = (props: Props) => {
   const { initialLocation, readOnly, children, style } = props;
 
   return (
     <MapView
+      //@ts-ignore only present in the web package
+      options={{
+        disableDefaultUI: true,
+      }}
       style={style}
-      provider={PROVIDER_GOOGLE}
-      onRegionChangeComplete={(region) => {
+      provider={"google"}
+      onRegionChangeComplete={(region: Region) => {
         if (!readOnly) props.onLocationChange(region);
       }}
       initialRegion={
@@ -56,8 +60,4 @@ const NativeMap = (props: Props) => {
   );
 };
 
-const WebMap = (props: Props) => {
-  return <Map />;
-};
-
-export default Platform.select({ native: NativeMap, web: WebMap }) || NativeMap;
+export default Map;
