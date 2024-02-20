@@ -9,7 +9,7 @@ import {
   Button,
   ButtonText,
 } from "@gluestack-ui/themed";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useState } from "react";
 import GroupInformation from "../../../components/groups/GroupInformation";
 import { useMutation, useQuery } from "@apollo/client";
 import { usePrivateAuthContext } from "../../../hooks/auth";
@@ -17,8 +17,14 @@ import { Stack, router, useFocusEffect } from "expo-router";
 import { gql } from "../../../__generated__";
 
 const GET_JOINABLE_GROUPS = gql(`
-  query GetJoinableGroups($userLocation: CoordinatesInput!, $currentUserId: String!) {
-    groups(
+  query GetNearestJoinableGroups(
+    $userStartLocation: CoordinatesInput!
+    $userEndLocation: CoordinatesInput!
+    $currentUserId: String!
+  ) {
+    nearestGroups(
+      userStartLocation: $userStartLocation
+      userEndLocation: $userEndLocation
       where: {
         and: [
           { driver: { id: { neq: $currentUserId } } }
@@ -32,7 +38,7 @@ const GET_JOINABLE_GROUPS = gql(`
       startLocation {
         latitude
         longitude
-        distance(to: $userLocation)
+        distance(to: $userStartLocation)
       }
       endLocation {
         latitude
@@ -64,9 +70,15 @@ const JOIN_GROUP = gql(`
 const Join = () => {
   const { user } = usePrivateAuthContext();
 
-  const userLocation = {
+  // TODO: Should come dynamically from user input
+  const userStartLocation = {
     latitude: 54.72090502968378,
     longitude: 25.28279660188754,
+  };
+
+  const userEndLocation = {
+    latitude: 54.70185784205424,
+    longitude: 25.259262733772623,
   };
 
   const {
@@ -76,7 +88,8 @@ const Join = () => {
     refetch,
   } = useQuery(GET_JOINABLE_GROUPS, {
     variables: {
-      userLocation: userLocation,
+      userStartLocation: userStartLocation,
+      userEndLocation: userEndLocation,
       currentUserId: user.uid,
     },
     notifyOnNetworkStatusChange: true,
@@ -90,7 +103,13 @@ const Join = () => {
       error: mutationError,
       called: mutationCalled,
     },
-  ] = useMutation(JOIN_GROUP); // Don't need to refetch GET_JOINABLE_GROUPS since we'll be navigated off this page
+  ] = useMutation(JOIN_GROUP, {
+    onCompleted: (data) => {
+      if (data.joinGroup.errors) return;
+
+      router.navigate("/groups");
+    },
+  }); // Don't need to refetch GET_JOINABLE_GROUPS since we'll be navigated off this page
 
   useFocusEffect(
     useCallback(() => {
@@ -106,21 +125,6 @@ const Join = () => {
     setRefreshing(false);
   }, []);
 
-  // TODO: Do not sort on the client :/
-  const sortedGroups = useMemo(() => {
-    if (queryData === undefined) return [];
-
-    return [...queryData.groups].sort((a, b) => {
-      if (a.startLocation.distance < b.startLocation.distance) {
-        return -1;
-      }
-      if (a.startLocation.distance > b.startLocation.distance) {
-        return 1;
-      }
-      return 0;
-    });
-  }, [queryData]);
-
   const body =
     queryLoading || mutationLoading ? (
       <Spinner />
@@ -128,13 +132,22 @@ const Join = () => {
       <Text>Whoops! Ran into an error :/</Text>
     ) : mutationCalled && (mutationError || mutationData === undefined) ? (
       <Text>Whoops! Ran into an error when joining a group :/</Text>
-    ) : queryData.groups.length === 0 ? (
+    ) : mutationData?.joinGroup.errors ? (
+      <>
+        <Text textAlign="center">Ran into an error!</Text>
+        {mutationData.joinGroup.errors.map((x) => (
+          <Text key={x.message} textAlign="center">
+            {x.message}
+          </Text>
+        ))}
+      </>
+    ) : queryData.nearestGroups.length === 0 ? (
       <Text color="$secondary400" textAlign="center">
         Seems like there are no new groups you can join :/
       </Text>
     ) : (
       <VStack space="md">
-        {sortedGroups.map((group) => (
+        {queryData.nearestGroups.map((group) => (
           <GroupInformation
             key={group.id}
             group={{
@@ -162,7 +175,6 @@ const Join = () => {
                       groupId: group.id,
                     },
                   });
-                  router.navigate("/groups");
                 }}
               >
                 <ButtonText>Join</ButtonText>
