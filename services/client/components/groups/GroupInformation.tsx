@@ -97,7 +97,7 @@ const GroupInformation = ({ group, button }: Props) => {
               <HStack space="md">
                 <Feather name="user" size={24} color={color} />
                 <Text>
-                  {group.seats.occupied + 1}/{group.seats.total}
+                  {group.seats.occupied + 1}/{group.seats.total + 1}
                 </Text>
               </HStack>
               <Center>{button}</Center>

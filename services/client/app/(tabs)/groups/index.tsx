@@ -160,13 +160,7 @@ const Groups = () => {
     <SafeAreaView h="$full">
       <Stack.Screen options={{ title: "My groups" }} />
       <Center h="$full" p="$5">
-        <VStack
-          space="md"
-          h="$full"
-          $base-w={"100%"}
-          $md-w={"60%"}
-          $lg-w={"550px"}
-        >
+        <VStack space="md" h="$full" $base-w={"100%"} $md-w={"60%"} $lg-w={550}>
           <ScrollView
             refreshControl={
               <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
@@ -174,7 +168,7 @@ const Groups = () => {
           >
             {body}
           </ScrollView>
-          <Link href={"/groups/join"} asChild>
+          <Link href={"/groups/search"} asChild>
             <Button action="positive">
               <ButtonText>Join a group</ButtonText>
             </Button>
