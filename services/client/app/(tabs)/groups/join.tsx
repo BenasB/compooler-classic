@@ -187,7 +187,7 @@ const Join = () => {
             h="$full"
             $base-w={"100%"}
             $md-w={"60%"}
-            $lg-w={"550px"}
+            $lg-w={550}
           >
             {body}
           </VStack>
