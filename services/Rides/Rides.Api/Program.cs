@@ -19,7 +19,8 @@ builder
     .AddProjections()
     .AddMutationConventions(applyToAllMutations: true)
     .AddDefaultTransactionScopeHandler()
-    .AddQueryType<Query>();
+    .AddQueryType<Query>()
+    .AddMutationType<Mutation>();
 
 var app = builder.Build();
 

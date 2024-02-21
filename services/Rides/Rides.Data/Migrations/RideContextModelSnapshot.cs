@@ -41,6 +41,9 @@ namespace Rides.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("GroupId", "StartTime")
+                        .IsUnique();
+
                     b.ToTable("Rides");
                 });
 
@@ -59,7 +62,7 @@ namespace Rides.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("RideId")
+                    b.Property<int?>("RideId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -71,13 +74,9 @@ namespace Rides.Data.Migrations
 
             modelBuilder.Entity("Rides.Data.Entities.RidePassenger", b =>
                 {
-                    b.HasOne("Rides.Data.Entities.Ride", "Ride")
+                    b.HasOne("Rides.Data.Entities.Ride", null)
                         .WithMany("Passengers")
-                        .HasForeignKey("RideId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Ride");
+                        .HasForeignKey("RideId");
                 });
 
             modelBuilder.Entity("Rides.Data.Entities.Ride", b =>

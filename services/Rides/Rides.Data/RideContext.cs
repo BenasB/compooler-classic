@@ -10,11 +10,12 @@ public class RideContext(DbContextOptions<RideContext> context) : DbContext(cont
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
-        var groupEntity = builder.Entity<Ride>();
-        groupEntity.HasKey(ride => ride.Id);
-        groupEntity.HasMany(ride => ride.Passengers).WithOne(passenger => passenger.Ride);
+        var rideEntity = builder.Entity<Ride>();
+        rideEntity.HasKey(ride => ride.Id);
+        rideEntity.HasMany(ride => ride.Passengers).WithOne();
+        rideEntity.HasIndex(ride => new { ride.GroupId, ride.StartTime }).IsUnique();
 
-        var userEntity = builder.Entity<RidePassenger>();
-        userEntity.HasKey(passenger => passenger.Id);
+        var passengerEntity = builder.Entity<RidePassenger>();
+        passengerEntity.HasKey(passenger => passenger.Id);
     }
 }

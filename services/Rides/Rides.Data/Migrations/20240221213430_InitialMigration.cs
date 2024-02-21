@@ -35,7 +35,7 @@ namespace Rides.Data.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     PassengerId = table.Column<string>(type: "text", nullable: false),
                     ParticipationStatus = table.Column<int>(type: "integer", nullable: false),
-                    RideId = table.Column<int>(type: "integer", nullable: false)
+                    RideId = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -44,14 +44,19 @@ namespace Rides.Data.Migrations
                         name: "FK_Passengers_Rides_RideId",
                         column: x => x.RideId,
                         principalTable: "Rides",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Passengers_RideId",
                 table: "Passengers",
                 column: "RideId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Rides_GroupId_StartTime",
+                table: "Rides",
+                columns: new[] { "GroupId", "StartTime" },
+                unique: true);
         }
 
         /// <inheritdoc />

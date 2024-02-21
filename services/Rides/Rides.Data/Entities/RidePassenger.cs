@@ -7,8 +7,6 @@ public class RidePassenger
     public required string PassengerId { get; init; }
 
     public required RideParticipationStatus ParticipationStatus { get; init; }
-
-    public required Ride Ride { get; init; }
 }
 
 public enum RideParticipationStatus
