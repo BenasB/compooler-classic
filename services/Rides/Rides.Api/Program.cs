@@ -12,6 +12,15 @@ builder.Services.AddDbContext<RideContext>(options =>
 );
 
 builder
+    .Services.AddGroupMakerClient()
+    .ConfigureHttpClient(client =>
+        client.BaseAddress = new Uri(
+            builder.Configuration.GetConnectionString("GroupMaker")
+                ?? throw new InvalidOperationException("Missing URI to GroupMaker API")
+        )
+    );
+
+builder
     .Services.AddGraphQLServer()
     .RegisterDbContext<RideContext>()
     .AddFiltering()

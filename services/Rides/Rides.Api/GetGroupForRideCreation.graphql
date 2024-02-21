@@ -1,0 +1,11 @@
+query GetGroupForRideCreation($groupId: Int!) {
+  groupById(id: $groupId) {
+    driver {
+      id
+    }
+    startTime
+    passengers {
+      id
+    }
+  }
+}
