@@ -1,8 +1,10 @@
-﻿using Rides.Data;
+﻿using HotChocolate.Authorization;
+using Rides.Data;
 using Rides.Data.Entities;
 
 namespace Rides.Api;
 
+[Authorize]
 public class Query
 {
     [UseProjection]

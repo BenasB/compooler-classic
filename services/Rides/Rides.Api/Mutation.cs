@@ -1,10 +1,12 @@
-﻿using Rides.Api.Clients;
+﻿using HotChocolate.Authorization;
+using Rides.Api.Clients;
 using Rides.Data;
 using Rides.Data.Entities;
 using StrawberryShake;
 
 namespace Rides.Api;
 
+[Authorize]
 public class Mutation
 {
     [UseFirstOrDefault]
@@ -13,7 +15,7 @@ public class Mutation
     public async Task<IQueryable<Ride>> CreateNextRide(
         int groupId,
         RideContext context,
-        GroupMakerClient groupMakerClient,
+        IGroupMakerClient groupMakerClient,
         CancellationToken cancellationToken
     )
     {
