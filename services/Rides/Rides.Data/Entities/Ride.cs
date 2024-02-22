@@ -10,7 +10,7 @@ public class Ride
 
     public List<RidePassenger> Passengers { get; init; } = [];
 
-    public required RideStatus Status { get; init; }
+    public required RideStatus Status { get; set; }
 }
 
 public enum RideStatus

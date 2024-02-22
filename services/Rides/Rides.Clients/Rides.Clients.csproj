@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="GetGroupForRideProgress.graphql" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="StrawberryShake.Server" Version="13.9.0" />
   </ItemGroup>
 
