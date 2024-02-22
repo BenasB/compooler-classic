@@ -1,0 +1,20 @@
+name: Rides .NET
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - services/Rides/**
+  pull_request:
+    branches:
+      - main
+    paths:
+      - services/Rides/**
+
+jobs:
+  ci:
+    uses: ./.github/workflows/dotnet-ci.yaml
+    with:
+      solution-directory: services/Rides

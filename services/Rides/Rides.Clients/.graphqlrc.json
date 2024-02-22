@@ -1,0 +1,23 @@
+{
+  "schema": "schema.graphql",
+  "documents": "**/*.graphql",
+  "extensions": {
+    "strawberryShake": {
+      "name": "GroupMakerClient",
+      "namespace": "Rides.Clients",
+      "url": "http://localhost:19001/graphql",
+      "dependencyInjection": false,
+      "noStore": true,
+      "records": {
+        "inputs": false,
+        "entities": false
+      },
+      "transportProfiles": [
+        {
+          "default": "Http",
+          "subscription": "WebSocket"
+        }
+      ]
+    }
+  }
+}

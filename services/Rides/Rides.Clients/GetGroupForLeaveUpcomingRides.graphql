@@ -1,0 +1,7 @@
+query GetGroupForLeaveUpcomingRides($groupId: Int!) {
+  groupById(id: $groupId) {
+    passengers {
+      id
+    }
+  }
+}

@@ -1,0 +1,8 @@
+query GetGroupForJoinUpcomingRides($groupId: Int!) {
+  groupById(id: $groupId) {
+    passengers {
+      id
+    }
+    totalSeats
+  }
+}

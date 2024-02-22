@@ -122,7 +122,7 @@ public class Mutation
         if (group.Passengers.Any(passenger => passenger == user))
             throw new ArgumentException("User is already one of the passengers");
 
-        if (group.Passengers.Count + 1 > group.TotalSeats)
+        if (group.Passengers.Count + 1 > group.TotalSeats - 1) // One of the totalSeats is for the driver
             throw new ArgumentException("There are no more seats left");
 
         group.Passengers.Add(user);

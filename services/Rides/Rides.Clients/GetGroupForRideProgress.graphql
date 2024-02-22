@@ -1,0 +1,7 @@
+query GetGroupForRideProgress($groupId: Int!) {
+  groupById(id: $groupId) {
+    driver {
+      id
+    }
+  }
+}
