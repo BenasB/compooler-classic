@@ -12,7 +12,7 @@ using Rides.Data;
 namespace Rides.Data.Migrations
 {
     [DbContext(typeof(RideContext))]
-    [Migration("20240221213430_InitialMigration")]
+    [Migration("20240222161850_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -36,8 +36,8 @@ namespace Rides.Data.Migrations
                     b.Property<int>("GroupId")
                         .HasColumnType("integer");
 
-                    b.Property<DateTimeOffset>("StartTime")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer");

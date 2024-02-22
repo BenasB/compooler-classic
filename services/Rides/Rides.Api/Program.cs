@@ -70,7 +70,8 @@ builder
     .AddMutationConventions(applyToAllMutations: true)
     .AddDefaultTransactionScopeHandler()
     .AddQueryType<Query>()
-    .AddMutationType<Mutation>();
+    .AddMutationType<Mutation>()
+    .AddTypeExtension<RideObjectTypeExtension>();
 
 var app = builder.Build();
 

@@ -8,5 +8,9 @@ query GetGroupForRideCreation($groupId: Int!) {
     passengers {
       id
     }
+    startLocation {
+      latitude
+      longitude
+    }
   }
 }

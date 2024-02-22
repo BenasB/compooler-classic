@@ -1,11 +1,13 @@
 ﻿using System.Security.Authentication;
 using System.Security.Claims;
+using GeoTimeZone;
 using HotChocolate.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Rides.Clients;
 using Rides.Data;
 using Rides.Data.Entities;
 using StrawberryShake;
+using TimeZoneConverter;
 
 namespace Rides.Api;
 
@@ -46,13 +48,21 @@ public class Mutation
             .Rides.Where(x => x.GroupId == groupId)
             .OrderByDescending(x => x.StartTime)
             .Select(x => x.StartTime)
-            .Cast<DateTimeOffset?>()
+            .Cast<DateTime?>()
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
         var startTime = latestStartTime.HasValue switch
         {
-            false => GetNextStartDateTimeOffset(DateTimeOffset.Now, group.Days, group.StartTime),
-            true => GetNextStartDateTimeOffset(latestStartTime.Value, group.Days, group.StartTime)
+            false
+                => GetNextStartDateTime(
+                    GetGroupCurrentLocalDateTime(
+                        group.StartLocation.Latitude,
+                        group.StartLocation.Longitude
+                    ),
+                    group.Days,
+                    group.StartTime
+                ),
+            true => GetNextStartDateTime(latestStartTime.Value, group.Days, group.StartTime)
         };
 
         var newRide = new Ride()
@@ -70,13 +80,20 @@ public class Mutation
         };
 
         await context.Rides.AddAsync(newRide, cancellationToken);
-        await context.SaveChangesAsync(cancellationToken); // TODO: Figure something out with timezone passing
+        await context.SaveChangesAsync(cancellationToken);
 
         return context.Rides.Where(r => r == newRide);
     }
 
-    private static DateTimeOffset GetNextStartDateTimeOffset(
-        DateTimeOffset latest,
+    private static DateTime GetGroupCurrentLocalDateTime(double latitude, double longitude)
+    {
+        var tzIana = TimeZoneLookup.GetTimeZone(latitude, longitude).Result;
+        var tzInfo = TZConvert.GetTimeZoneInfo(tzIana);
+        return TimeZoneInfo.ConvertTime(DateTime.UtcNow, TimeZoneInfo.Utc, tzInfo);
+    }
+
+    private static DateTime GetNextStartDateTime(
+        DateTime latest, // Calculations assumed to be done in the group's local time
         int days, // 7 bit number, LSB is Monday, MSB is Sunday, e. g. 0111011 means the group is commuting on Mon, Tues, Thur, Fri and Sat
         TimeSpan startTime
     )
@@ -96,42 +113,40 @@ public class Mutation
             int daysToAdd = ((int)day - (int)latest.DayOfWeek + 7) % 7;
 
             var nextStartDate = latest.AddDays(daysToAdd);
-            var nextStartDateTimeOffset = new DateTimeOffset(
+            var nextStartDateTime = new DateTime(
                 nextStartDate.Year,
                 nextStartDate.Month,
                 nextStartDate.Day,
                 startTime.Hours,
                 startTime.Minutes,
-                0,
-                nextStartDate.Offset
+                0
             );
 
             if (daysToAdd == 0)
             {
                 // Today's commute time already passed
-                if (nextStartDateTimeOffset <= latest)
+                if (nextStartDateTime <= latest)
                 {
                     var dayAfterLatest = latest.AddDays(1);
-                    var dayAfterLatestMidnight = new DateTimeOffset(
+                    var dayAfterLatestMidnight = new DateTime(
                         dayAfterLatest.Year,
                         dayAfterLatest.Month,
                         dayAfterLatest.Day,
                         0,
                         0,
-                        0,
-                        dayAfterLatest.Offset
+                        0
                     );
 
                     // Calculate the next commute time starting from the next midnight
-                    return GetNextStartDateTimeOffset(dayAfterLatestMidnight, days, startTime);
+                    return GetNextStartDateTime(dayAfterLatestMidnight, days, startTime);
                 }
                 else
                 {
-                    return nextStartDateTimeOffset;
+                    return nextStartDateTime;
                 }
             }
 
-            return nextStartDateTimeOffset;
+            return nextStartDateTime;
         }
 
         throw new ArgumentException("No days specified", nameof(days));

@@ -4,7 +4,7 @@ public class Ride
 {
     public int Id { get; init; }
 
-    public required DateTimeOffset StartTime { get; init; }
+    public required DateTime StartTime { get; init; }
 
     public required int GroupId { get; init; }
 

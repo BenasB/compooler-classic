@@ -11,6 +11,7 @@ public class RideContext(DbContextOptions<RideContext> context) : DbContext(cont
     protected override void OnModelCreating(ModelBuilder builder)
     {
         var rideEntity = builder.Entity<Ride>();
+        rideEntity.Property(ride => ride.StartTime).HasColumnType("timestamp without time zone");
         rideEntity.HasKey(ride => ride.Id);
         rideEntity.HasMany(ride => ride.Passengers).WithOne();
         rideEntity.HasIndex(ride => new { ride.GroupId, ride.StartTime }).IsUnique();

@@ -22,8 +22,8 @@ namespace Rides.Data.Migrations
                             "Npgsql:ValueGenerationStrategy",
                             NpgsqlValueGenerationStrategy.IdentityByDefaultColumn
                         ),
-                    StartTime = table.Column<DateTimeOffset>(
-                        type: "timestamp with time zone",
+                    StartTime = table.Column<DateTime>(
+                        type: "timestamp without time zone",
                         nullable: false
                     ),
                     GroupId = table.Column<int>(type: "integer", nullable: false),
