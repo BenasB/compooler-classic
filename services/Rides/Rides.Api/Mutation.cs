@@ -14,16 +14,16 @@ namespace Rides.Api;
 [Authorize]
 public class Mutation
 {
-    [UseFirstOrDefault]
     [UseProjection]
     [Error<ArgumentException>]
     [Error<AuthenticationException>]
-    public async Task<IQueryable<Ride>> CreateNextRide(
+    public async Task<IQueryable<Ride>> CreateNextRides(
         int groupId,
         RideContext context,
         IGroupMakerClient groupMakerClient,
         ClaimsPrincipal principal,
-        CancellationToken cancellationToken
+        CancellationToken cancellationToken,
+        int? count = 1
     )
     {
         var groupInfoResult = await groupMakerClient.GetGroupForRideCreation.ExecuteAsync(
@@ -65,24 +65,31 @@ public class Mutation
             true => GetNextStartDateTime(latestStartTime.Value, group.Days, group.StartTime)
         };
 
-        var newRide = new Ride()
+        var newRides = new List<Ride>();
+        for (int i = 0; i < count; i++)
         {
-            Passengers = group
-                .Passengers.Select(groupPassenger => new RidePassenger()
-                {
-                    ParticipationStatus = RideParticipationStatus.Participate,
-                    PassengerId = groupPassenger.Id
-                })
-                .ToList(),
-            GroupId = groupId,
-            StartTime = startTime,
-            Status = RideStatus.Upcoming
-        };
+            var newRide = new Ride()
+            {
+                Passengers = group
+                    .Passengers.Select(groupPassenger => new RidePassenger()
+                    {
+                        ParticipationStatus = RideParticipationStatus.Participate,
+                        PassengerId = groupPassenger.Id
+                    })
+                    .ToList(),
+                GroupId = groupId,
+                StartTime = startTime,
+                Status = RideStatus.Upcoming
+            };
 
-        await context.Rides.AddAsync(newRide, cancellationToken);
+            newRides.Add(newRide);
+            startTime = GetNextStartDateTime(startTime, group.Days, group.StartTime);
+        }
+
+        await context.Rides.AddRangeAsync(newRides, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
-        return context.Rides.Where(r => r == newRide);
+        return context.Rides.Where(x => newRides.Contains(x));
     }
 
     private static DateTime GetGroupCurrentLocalDateTime(double latitude, double longitude)
