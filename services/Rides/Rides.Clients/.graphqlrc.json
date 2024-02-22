@@ -4,8 +4,10 @@
   "extensions": {
     "strawberryShake": {
       "name": "GroupMakerClient",
-      "namespace": "Rides.Api.Clients",
-      "url": "http://localhost:19001/graphql/",
+      "namespace": "Rides.Clients",
+      "url": "http://localhost:19001/graphql",
+      "dependencyInjection": false,
+      "noStore": true,
       "records": {
         "inputs": false,
         "entities": false

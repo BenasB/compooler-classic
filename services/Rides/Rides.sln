@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rides.Api", "Rides.Api\Ride
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rides.Data", "Rides.Data\Rides.Data.csproj", "{13AC4D42-BD71-4B57-84DD-93E559D1A484}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rides.Clients", "Rides.Clients\Rides.Clients.csproj", "{D80D8B57-B613-407B-A8F7-64372676C5C3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{13AC4D42-BD71-4B57-84DD-93E559D1A484}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{13AC4D42-BD71-4B57-84DD-93E559D1A484}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{13AC4D42-BD71-4B57-84DD-93E559D1A484}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D80D8B57-B613-407B-A8F7-64372676C5C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D80D8B57-B613-407B-A8F7-64372676C5C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D80D8B57-B613-407B-A8F7-64372676C5C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D80D8B57-B613-407B-A8F7-64372676C5C3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

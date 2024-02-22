@@ -4,6 +4,7 @@ query GetGroupForRideCreation($groupId: Int!) {
       id
     }
     startTime
+    days
     passengers {
       id
     }

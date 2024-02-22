@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Rides.Api;
-using Rides.Api.Clients;
 using Rides.Api.Options;
+using Rides.Clients;
 using Rides.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,14 +14,25 @@ builder.Services.AddDbContext<RideContext>(options =>
     )
 );
 
-//builder
-//    .Services.AddGroupMakerClient()
-//    .ConfigureHttpClient(client =>
-//        client.BaseAddress = new Uri(
-//            builder.Configuration.GetConnectionString("GroupMaker")
-//                ?? throw new InvalidOperationException("Missing URI to GroupMaker API")
-//        )
-//    );
+builder
+    .Services.AddHttpContextAccessor()
+    .AddGroupMakerClient(StrawberryShake.ExecutionStrategy.NetworkOnly)
+    .ConfigureHttpClient(
+        (sp, client) =>
+        {
+            var httpContextAccessor = sp.GetRequiredService<IHttpContextAccessor>();
+            var authHeader = httpContextAccessor
+                .HttpContext?.Request.Headers.Authorization[0]
+                ?.Split(" ");
+            if (authHeader != null && authHeader.Length == 2)
+                client.DefaultRequestHeaders.Authorization = new(authHeader[0], authHeader[1]);
+
+            client.BaseAddress = new Uri(
+                builder.Configuration.GetConnectionString("GroupMaker")
+                    ?? throw new InvalidOperationException("Missing URI to GroupMaker API")
+            );
+        }
+    );
 
 builder
     .Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
