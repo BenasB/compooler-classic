@@ -20,6 +20,4 @@ public class Query
     [UseProjection]
     public IQueryable<Ride> GetRidesById(IEnumerable<int> ids, RideContext rideContext) =>
         rideContext.Rides.Where(r => ids.Contains(r.Id));
-
-    public TimeOnly GetLol() => new TimeOnly(16, 12);
 }
