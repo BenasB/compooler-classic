@@ -14,6 +14,8 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
+  /** The `DateTime` scalar represents an ISO-8601 compliant date time type. */
+  DateTime: { input: any; output: any; }
   /** The `TimeSpan` scalar represents an ISO-8601 compliant duration type. */
   TimeSpan: { input: string; output: string; }
 };
@@ -45,6 +47,19 @@ export type ArgumentError = Error & {
 export type AuthenticationError = Error & {
   __typename?: 'AuthenticationError';
   message: Scalars['String']['output'];
+};
+
+export type ChangeRideParticipationStatusError = ArgumentError | AuthenticationError | InvalidOperationError;
+
+export type ChangeRideParticipationStatusInput = {
+  rideId: Scalars['Int']['input'];
+  status: RideParticipationStatus;
+};
+
+export type ChangeRideParticipationStatusPayload = {
+  __typename?: 'ChangeRideParticipationStatusPayload';
+  errors?: Maybe<Array<ChangeRideParticipationStatusError>>;
+  ridePassenger?: Maybe<Array<RidePassenger>>;
 };
 
 export type Coordinates = {
@@ -90,6 +105,34 @@ export type CreateGroupPayload = {
   __typename?: 'CreateGroupPayload';
   errors?: Maybe<Array<CreateGroupError>>;
   group?: Maybe<Group>;
+};
+
+export type CreateNextRidesError = ArgumentError | AuthenticationError;
+
+export type CreateNextRidesInput = {
+  count?: InputMaybe<Scalars['Int']['input']>;
+  groupId: Scalars['Int']['input'];
+};
+
+export type CreateNextRidesPayload = {
+  __typename?: 'CreateNextRidesPayload';
+  errors?: Maybe<Array<CreateNextRidesError>>;
+  ride?: Maybe<Array<Ride>>;
+};
+
+export type DateTimeOperationFilterInput = {
+  eq?: InputMaybe<Scalars['DateTime']['input']>;
+  gt?: InputMaybe<Scalars['DateTime']['input']>;
+  gte?: InputMaybe<Scalars['DateTime']['input']>;
+  in?: InputMaybe<Array<InputMaybe<Scalars['DateTime']['input']>>>;
+  lt?: InputMaybe<Scalars['DateTime']['input']>;
+  lte?: InputMaybe<Scalars['DateTime']['input']>;
+  neq?: InputMaybe<Scalars['DateTime']['input']>;
+  ngt?: InputMaybe<Scalars['DateTime']['input']>;
+  ngte?: InputMaybe<Scalars['DateTime']['input']>;
+  nin?: InputMaybe<Array<InputMaybe<Scalars['DateTime']['input']>>>;
+  nlt?: InputMaybe<Scalars['DateTime']['input']>;
+  nlte?: InputMaybe<Scalars['DateTime']['input']>;
 };
 
 export type DaysOfWeekOperationFilterInput = {
@@ -180,6 +223,11 @@ export type IntOperationFilterInput = {
   nlte?: InputMaybe<Scalars['Int']['input']>;
 };
 
+export type InvalidOperationError = Error & {
+  __typename?: 'InvalidOperationError';
+  message: Scalars['String']['output'];
+};
+
 export type JoinGroupError = ArgumentError | AuthenticationError;
 
 export type JoinGroupInput = {
@@ -192,11 +240,42 @@ export type JoinGroupPayload = {
   group?: Maybe<Group>;
 };
 
+export type JoinUpcomingRidesError = ArgumentError | AuthenticationError;
+
+export type JoinUpcomingRidesInput = {
+  groupId: Scalars['Int']['input'];
+};
+
+export type JoinUpcomingRidesPayload = {
+  __typename?: 'JoinUpcomingRidesPayload';
+  errors?: Maybe<Array<JoinUpcomingRidesError>>;
+  ride?: Maybe<Array<Ride>>;
+};
+
+export type LeaveUpcomingRidesError = ArgumentError | AuthenticationError;
+
+export type LeaveUpcomingRidesInput = {
+  groupId: Scalars['Int']['input'];
+};
+
+export type LeaveUpcomingRidesPayload = {
+  __typename?: 'LeaveUpcomingRidesPayload';
+  errors?: Maybe<Array<LeaveUpcomingRidesError>>;
+  ids?: Maybe<Array<Scalars['Int']['output']>>;
+};
+
 export type ListFilterInputTypeOfGroupFilterInput = {
   all?: InputMaybe<GroupFilterInput>;
   any?: InputMaybe<Scalars['Boolean']['input']>;
   none?: InputMaybe<GroupFilterInput>;
   some?: InputMaybe<GroupFilterInput>;
+};
+
+export type ListFilterInputTypeOfRidePassengerFilterInput = {
+  all?: InputMaybe<RidePassengerFilterInput>;
+  any?: InputMaybe<Scalars['Boolean']['input']>;
+  none?: InputMaybe<RidePassengerFilterInput>;
+  some?: InputMaybe<RidePassengerFilterInput>;
 };
 
 export type ListFilterInputTypeOfUserFilterInput = {
@@ -209,9 +288,14 @@ export type ListFilterInputTypeOfUserFilterInput = {
 export type Mutation = {
   __typename?: 'Mutation';
   abandonGroup: AbandonGroupPayload;
+  changeRideParticipationStatus: ChangeRideParticipationStatusPayload;
   createGroup: CreateGroupPayload;
+  createNextRides: CreateNextRidesPayload;
   deleteGroup: DeleteGroupPayload;
   joinGroup: JoinGroupPayload;
+  joinUpcomingRides: JoinUpcomingRidesPayload;
+  leaveUpcomingRides: LeaveUpcomingRidesPayload;
+  progressRide: ProgressRidePayload;
 };
 
 
@@ -220,8 +304,18 @@ export type MutationAbandonGroupArgs = {
 };
 
 
+export type MutationChangeRideParticipationStatusArgs = {
+  input: ChangeRideParticipationStatusInput;
+};
+
+
 export type MutationCreateGroupArgs = {
   input: CreateGroupInput;
+};
+
+
+export type MutationCreateNextRidesArgs = {
+  input: CreateNextRidesInput;
 };
 
 
@@ -234,11 +328,42 @@ export type MutationJoinGroupArgs = {
   input: JoinGroupInput;
 };
 
+
+export type MutationJoinUpcomingRidesArgs = {
+  input: JoinUpcomingRidesInput;
+};
+
+
+export type MutationLeaveUpcomingRidesArgs = {
+  input: LeaveUpcomingRidesInput;
+};
+
+
+export type MutationProgressRideArgs = {
+  input: ProgressRideInput;
+};
+
+export type ProgressRideError = ArgumentError | AuthenticationError | InvalidOperationError;
+
+export type ProgressRideInput = {
+  id: Scalars['Int']['input'];
+  newStatus: RideStatus;
+};
+
+export type ProgressRidePayload = {
+  __typename?: 'ProgressRidePayload';
+  errors?: Maybe<Array<ProgressRideError>>;
+  ride?: Maybe<Ride>;
+};
+
 export type Query = {
   __typename?: 'Query';
   groupById?: Maybe<Group>;
   groups: Array<Group>;
   nearestGroups: Array<Group>;
+  rideById?: Maybe<Ride>;
+  rides: Array<Ride>;
+  ridesById: Array<Ride>;
 };
 
 
@@ -257,6 +382,90 @@ export type QueryNearestGroupsArgs = {
   userEndLocation: CoordinatesInput;
   userStartLocation: CoordinatesInput;
   where?: InputMaybe<GroupFilterInput>;
+};
+
+
+export type QueryRideByIdArgs = {
+  id: Scalars['Int']['input'];
+};
+
+
+export type QueryRidesArgs = {
+  order?: InputMaybe<Array<RideSortInput>>;
+  where?: InputMaybe<RideFilterInput>;
+};
+
+
+export type QueryRidesByIdArgs = {
+  ids: Array<Scalars['Int']['input']>;
+};
+
+export type Ride = {
+  __typename?: 'Ride';
+  groupId: Scalars['Int']['output'];
+  id: Scalars['Int']['output'];
+  passengers: Array<RidePassenger>;
+  /** This datetime will always be represented as UTC+0 but treat it as local (to the group's location) when consuming */
+  startTime: Scalars['DateTime']['output'];
+  status: RideStatus;
+};
+
+export type RideFilterInput = {
+  and?: InputMaybe<Array<RideFilterInput>>;
+  groupId?: InputMaybe<IntOperationFilterInput>;
+  id?: InputMaybe<IntOperationFilterInput>;
+  or?: InputMaybe<Array<RideFilterInput>>;
+  passengers?: InputMaybe<ListFilterInputTypeOfRidePassengerFilterInput>;
+  startTime?: InputMaybe<DateTimeOperationFilterInput>;
+  status?: InputMaybe<RideStatusOperationFilterInput>;
+};
+
+export enum RideParticipationStatus {
+  Participate = 'PARTICIPATE',
+  Skip = 'SKIP'
+}
+
+export type RideParticipationStatusOperationFilterInput = {
+  eq?: InputMaybe<RideParticipationStatus>;
+  in?: InputMaybe<Array<RideParticipationStatus>>;
+  neq?: InputMaybe<RideParticipationStatus>;
+  nin?: InputMaybe<Array<RideParticipationStatus>>;
+};
+
+export type RidePassenger = {
+  __typename?: 'RidePassenger';
+  id: Scalars['Int']['output'];
+  participationStatus: RideParticipationStatus;
+  passengerId: Scalars['String']['output'];
+};
+
+export type RidePassengerFilterInput = {
+  and?: InputMaybe<Array<RidePassengerFilterInput>>;
+  id?: InputMaybe<IntOperationFilterInput>;
+  or?: InputMaybe<Array<RidePassengerFilterInput>>;
+  participationStatus?: InputMaybe<RideParticipationStatusOperationFilterInput>;
+  passengerId?: InputMaybe<StringOperationFilterInput>;
+};
+
+export type RideSortInput = {
+  groupId?: InputMaybe<SortEnumType>;
+  id?: InputMaybe<SortEnumType>;
+  startTime?: InputMaybe<SortEnumType>;
+  status?: InputMaybe<SortEnumType>;
+};
+
+export enum RideStatus {
+  Cancelled = 'CANCELLED',
+  Done = 'DONE',
+  InProgress = 'IN_PROGRESS',
+  Upcoming = 'UPCOMING'
+}
+
+export type RideStatusOperationFilterInput = {
+  eq?: InputMaybe<RideStatus>;
+  in?: InputMaybe<Array<RideStatus>>;
+  neq?: InputMaybe<RideStatus>;
+  nin?: InputMaybe<Array<RideStatus>>;
 };
 
 export enum SortEnumType {

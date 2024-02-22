@@ -40,6 +40,7 @@ import { Coordinates, Days } from "../../../types/group";
 import LocationPicker from "../../../components/LocationPicker";
 import { gql } from "../../../__generated__";
 import { useMutation } from "@apollo/client";
+import { Clients } from "../../../hooks/apollo";
 
 type ValidatableInput<T> = { value: T } & (
   | {
@@ -80,7 +81,11 @@ const Create = () => {
       error: mutationError,
       called: mutationCalled,
     },
-  ] = useMutation(CREATE_GROUP);
+  ] = useMutation(CREATE_GROUP, {
+    context: {
+      clientName: Clients.GroupMaker,
+    },
+  });
 
   const [time, setTime] = useState(new Date());
   const [days, setDays] = useState<ValidatableInput<Days | 0>>({

@@ -20,6 +20,7 @@ import {
   useLocalSearchParams,
 } from "expo-router";
 import { gql } from "../../../__generated__";
+import { Clients } from "../../../hooks/apollo";
 
 const GET_JOINABLE_GROUPS = gql(`
   query GetNearestJoinableGroups(
@@ -115,6 +116,9 @@ const Join = () => {
       currentUserId: user.uid,
     },
     notifyOnNetworkStatusChange: true,
+    context: {
+      clientName: Clients.GroupMaker,
+    },
   });
 
   const [
@@ -130,6 +134,9 @@ const Join = () => {
       if (data.joinGroup.errors) return;
 
       router.navigate("/groups");
+    },
+    context: {
+      clientName: Clients.GroupMaker,
     },
   }); // Don't need to refetch GET_JOINABLE_GROUPS since we'll be navigated off this page
 

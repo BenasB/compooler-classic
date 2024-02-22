@@ -26,11 +26,21 @@ const createAuthLink = (token: string) =>
     };
   });
 
-const httpLink = createHttpLink({
+const groupMakerEndpoint = createHttpLink({
   uri:
     process.env.EXPO_PUBLIC_GROUP_MAKER_API_URL ||
     `http://${localIp}:19001/graphql`,
 });
+
+const ridesEndpoint = createHttpLink({
+  uri:
+    process.env.EXPO_PUBLIC_RIDES_API_URL || `http://${localIp}:19002/graphql`,
+});
+
+export enum Clients {
+  GroupMaker = "groupMaker",
+  Rides = "rides",
+}
 
 export const useApolloRoot = (authState: AuthState) => {
   const [client, setClient] = useState<
@@ -42,9 +52,17 @@ export const useApolloRoot = (authState: AuthState) => {
       let link: ApolloLink | undefined;
       if (authState.state === "loggedIn") {
         const token = await authState.user.getIdToken();
-        link = createAuthLink(token).concat(httpLink);
+        link = createAuthLink(token).split(
+          (op) => op.getContext().clientName === Clients.GroupMaker,
+          groupMakerEndpoint,
+          ridesEndpoint
+        );
       } else if (authState.state === "loggedOut") {
-        link = httpLink;
+        link = ApolloLink.split(
+          (op) => op.getContext().clientName === Clients.GroupMaker,
+          groupMakerEndpoint,
+          ridesEndpoint
+        );
       }
 
       setClient(
@@ -60,10 +78,22 @@ export const useApolloRoot = (authState: AuthState) => {
     ) => {
       if (authState.state === "loggedIn") {
         const token = await authState.user.getIdToken();
-        client.setLink(createAuthLink(token).concat(httpLink));
+        client.setLink(
+          createAuthLink(token).split(
+            (op) => op.getContext().clientName === Clients.GroupMaker,
+            groupMakerEndpoint,
+            ridesEndpoint
+          )
+        );
         await client.resetStore();
       } else if (authState.state === "loggedOut") {
-        client.setLink(httpLink);
+        client.setLink(
+          ApolloLink.split(
+            (op) => op.getContext().clientName === Clients.GroupMaker,
+            groupMakerEndpoint,
+            ridesEndpoint
+          )
+        );
         await client.clearStore();
       }
     };

@@ -15,6 +15,7 @@ import { useMutation, useQuery } from "@apollo/client";
 import { usePrivateAuthContext } from "../../../hooks/auth";
 import { Link, Stack, useFocusEffect } from "expo-router";
 import { gql } from "../../../__generated__";
+import { Clients } from "../../../hooks/apollo";
 
 const GET_USER_GROUPS = gql(`
   query GetUserGroups($userLocation: CoordinatesInput!, $currentUserId: String!) {
@@ -81,6 +82,9 @@ const Groups = () => {
       currentUserId: user.uid,
     },
     notifyOnNetworkStatusChange: true, // Makes `loading` update when refetching
+    context: {
+      clientName: Clients.GroupMaker,
+    },
   });
 
   const [
@@ -91,7 +95,12 @@ const Groups = () => {
       error: mutationError,
       called: mutationCalled,
     },
-  ] = useMutation(LEAVE_GROUP, { refetchQueries: [GET_USER_GROUPS] });
+  ] = useMutation(LEAVE_GROUP, {
+    refetchQueries: [GET_USER_GROUPS],
+    context: {
+      clientName: Clients.GroupMaker,
+    },
+  });
 
   useFocusEffect(
     useCallback(() => {
