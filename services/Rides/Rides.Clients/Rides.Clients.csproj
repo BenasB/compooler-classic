@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <None Remove="GetGroupForJoinUpcomingRides.graphql" />
+    <None Remove="GetGroupForLeaveUpcomingRides.graphql" />
     <None Remove="GetGroupForRideProgress.graphql" />
   </ItemGroup>
 

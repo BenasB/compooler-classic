@@ -116,9 +116,7 @@ public class Mutation
         groupInfoResult.EnsureNoErrors();
 
         if (groupInfoResult.Data?.GroupById == null)
-        {
             throw new ArgumentException("Ride's group does not exist", nameof(id));
-        }
 
         var group = groupInfoResult.Data.GroupById;
 
@@ -163,21 +161,19 @@ public class Mutation
         groupInfoResult.EnsureNoErrors();
 
         if (groupInfoResult.Data?.GroupById == null)
-        {
             throw new ArgumentException("Group does not exist", nameof(groupId));
-        }
 
         var group = groupInfoResult.Data.GroupById;
         var userId = principal.Identity?.Name;
 
-        if (userId == null || group.Passengers.All(x => x.Id != principal.Identity?.Name))
+        if (userId == null || group.Passengers.All(x => x.Id != userId))
             throw new AuthenticationException("User is not one of the passengers");
 
         var rides = await context
             .Rides.Where(x => x.GroupId == groupId)
             .Where(x => x.Status == RideStatus.Upcoming)
             .Where(x => !x.Passengers.Any(p => p.PassengerId == userId)) // Skip the rides where the user is already a passenger
-            .Where(x => x.Passengers.Count + 1 > group.TotalSeats - 1) // Skip the rides where there are max amount of passengers already, 1 seat is reserved for the driver
+            .Where(x => x.Passengers.Count + 1 <= group.TotalSeats - 1) // Skip the rides where there are max amount of passengers already, 1 seat is reserved for the driver
             .ToListAsync(cancellationToken);
 
         foreach (var ride in rides)
@@ -193,13 +189,46 @@ public class Mutation
 
         await context.SaveChangesAsync(cancellationToken);
 
-        return context
-            .Rides.Where(x => x.GroupId == groupId)
-            .Where(x => x.Status == RideStatus.Upcoming)
-            .Where(x => !x.Passengers.Any(p => p.PassengerId == userId))
-            .Where(x => x.Passengers.Count + 1 > group.TotalSeats - 1);
+        return context.Rides.Where(x => rides.Contains(x));
     }
 
-    public async Task<IQueryable<Ride>> LeaveUpcomingRides(int groupId) =>
-        throw new NotImplementedException();
+    [Error<ArgumentException>]
+    [Error<AuthenticationException>]
+    [UseMutationConvention(PayloadFieldName = "ids")]
+    public async Task<IEnumerable<int>> LeaveUpcomingRides(
+        int groupId,
+        RideContext context,
+        IGroupMakerClient groupMakerClient,
+        ClaimsPrincipal principal,
+        CancellationToken cancellationToken
+    )
+    {
+        var groupInfoResult = await groupMakerClient.GetGroupForLeaveUpcomingRides.ExecuteAsync(
+            groupId,
+            cancellationToken
+        );
+        groupInfoResult.EnsureNoErrors();
+
+        if (groupInfoResult.Data?.GroupById == null)
+            throw new ArgumentException("Group does not exist", nameof(groupId));
+
+        var group = groupInfoResult.Data.GroupById;
+        var userId = principal.Identity?.Name;
+
+        if (group.Passengers.Any(x => x.Id == userId))
+            throw new AuthenticationException("User is still one of the passengers in the group");
+
+        var ridePassengers = await context
+            .Rides.Where(x => x.GroupId == groupId)
+            .Where(x => x.Status == RideStatus.Upcoming)
+            .Where(x => x.Passengers.Any(p => p.PassengerId == userId)) // Take the rides where the user is a passenger
+            .Select(x => new { x.Id, Passenger = x.Passengers.First(p => p.PassengerId == userId) })
+            .ToListAsync(cancellationToken);
+
+        context.Passengers.RemoveRange(ridePassengers.Select(x => x.Passenger));
+
+        await context.SaveChangesAsync(cancellationToken);
+
+        return ridePassengers.Select(x => x.Id);
+    }
 }
