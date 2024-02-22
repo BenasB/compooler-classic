@@ -19,6 +19,7 @@ public static class GroupDateTime
     /// <param name="days">7 bit number, LSB is Monday, MSB is Sunday, e. g. 0111011 means the group is commuting on Mon, Tues, Thur, Fri and Sat</param>
     /// <param name="startTime">Group's local start time</param>
     /// <returns>Group's next commute start time</returns>
+    /// <exception cref="ArgumentException"/>
     public static DateTime GetNextStartDateTime(DateTime latest, int days, TimeOnly startTime)
     {
         // Rotate the bits by one position to the left to align with .NET's DayOfWeek

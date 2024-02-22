@@ -144,4 +144,62 @@ public class Mutation
 
         return context.Rides.Where(x => x == ride);
     }
+
+    [UseProjection]
+    [Error<ArgumentException>]
+    [Error<AuthenticationException>]
+    public async Task<IQueryable<Ride>> JoinUpcomingRides(
+        int groupId,
+        RideContext context,
+        IGroupMakerClient groupMakerClient,
+        ClaimsPrincipal principal,
+        CancellationToken cancellationToken
+    )
+    {
+        var groupInfoResult = await groupMakerClient.GetGroupForJoinUpcomingRides.ExecuteAsync(
+            groupId,
+            cancellationToken
+        );
+        groupInfoResult.EnsureNoErrors();
+
+        if (groupInfoResult.Data?.GroupById == null)
+        {
+            throw new ArgumentException("Group does not exist", nameof(groupId));
+        }
+
+        var group = groupInfoResult.Data.GroupById;
+        var userId = principal.Identity?.Name;
+
+        if (userId == null || group.Passengers.All(x => x.Id != principal.Identity?.Name))
+            throw new AuthenticationException("User is not one of the passengers");
+
+        var rides = await context
+            .Rides.Where(x => x.GroupId == groupId)
+            .Where(x => x.Status == RideStatus.Upcoming)
+            .Where(x => !x.Passengers.Any(p => p.PassengerId == userId)) // Skip the rides where the user is already a passenger
+            .Where(x => x.Passengers.Count + 1 > group.TotalSeats - 1) // Skip the rides where there are max amount of passengers already, 1 seat is reserved for the driver
+            .ToListAsync(cancellationToken);
+
+        foreach (var ride in rides)
+        {
+            ride.Passengers.Add(
+                new()
+                {
+                    PassengerId = userId,
+                    ParticipationStatus = RideParticipationStatus.Participate
+                }
+            );
+        }
+
+        await context.SaveChangesAsync(cancellationToken);
+
+        return context
+            .Rides.Where(x => x.GroupId == groupId)
+            .Where(x => x.Status == RideStatus.Upcoming)
+            .Where(x => !x.Passengers.Any(p => p.PassengerId == userId))
+            .Where(x => x.Passengers.Count + 1 > group.TotalSeats - 1);
+    }
+
+    public async Task<IQueryable<Ride>> LeaveUpcomingRides(int groupId) =>
+        throw new NotImplementedException();
 }

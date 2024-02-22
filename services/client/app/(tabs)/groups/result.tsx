@@ -184,7 +184,7 @@ const Join = () => {
               distanceFrom: group.startLocation.distance,
               seats: {
                 total: group.totalSeats,
-                occupied: group.passengers.length,
+                occupied: group.passengers.length + 1,
               },
             }}
             button={
