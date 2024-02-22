@@ -231,4 +231,40 @@ public class Mutation
 
         return ridePassengers.Select(x => x.Id);
     }
+
+    [UseProjection]
+    [Error<ArgumentException>]
+    [Error<AuthenticationException>]
+    [Error<InvalidOperationException>]
+    public async Task<IQueryable<RidePassenger>> ChangeRideParticipationStatus(
+        int rideId,
+        RideParticipationStatus status,
+        RideContext context,
+        ClaimsPrincipal principal,
+        CancellationToken cancellationToken
+    )
+    {
+        var userId = principal.Identity?.Name;
+        var ride =
+            await context
+                .Rides.Where(x => x.Id == rideId)
+                .Include(x => x.Passengers)
+                .FirstOrDefaultAsync(cancellationToken)
+            ?? throw new ArgumentException("Ride was not found", nameof(rideId));
+
+        var ridePassenger =
+            ride.Passengers.FirstOrDefault(x => x.PassengerId == userId)
+            ?? throw new AuthenticationException("User is not a passenger in this group");
+
+        if (ride.Status != RideStatus.Upcoming)
+            throw new InvalidOperationException(
+                "Participation status can only be changed for upcoming rides"
+            );
+
+        ridePassenger.ParticipationStatus = status;
+
+        await context.SaveChangesAsync(cancellationToken);
+
+        return context.Passengers.Where(x => x == ridePassenger);
+    }
 }
