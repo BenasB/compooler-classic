@@ -152,6 +152,7 @@ const Groups = () => {
                 variant="outline"
                 action="negative"
                 onPress={() => {
+                  // TODO: Allow group delete/disband for drivers
                   mutateFunction({ variables: { groupId: group.id } });
                 }}
               >

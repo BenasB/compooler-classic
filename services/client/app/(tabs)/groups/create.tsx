@@ -70,20 +70,49 @@ const CREATE_GROUP = gql(`
   }
 `);
 
+const CREATE_INITIAL_RIDES = gql(`
+  mutation CreateInitialRides($input: CreateNextRidesInput!) {
+    createNextRides(input: $input) {
+      ride {
+        id
+      }
+      errors {
+        ... on Error {
+          message
+        }
+      }
+    }
+  }
+`);
+
 const Create = () => {
   const router = useRouter();
 
   const [
-    mutateFunction,
+    groupMutateFunction,
     {
-      data: mutationData,
-      loading: mutationLoading,
-      error: mutationError,
-      called: mutationCalled,
+      data: groupMutationData,
+      loading: groupMutationLoading,
+      error: groupMutationError,
+      called: groupMutationCalled,
     },
   ] = useMutation(CREATE_GROUP, {
     context: {
       clientName: Clients.GroupMaker,
+    },
+  });
+
+  const [
+    ridesMutateFunction,
+    {
+      data: ridesMutationData,
+      loading: ridesMutationLoading,
+      error: ridesMutationError,
+      called: ridesMutationCalled,
+    },
+  ] = useMutation(CREATE_INITIAL_RIDES, {
+    context: {
+      clientName: Clients.Rides,
     },
   });
 
@@ -142,136 +171,167 @@ const Create = () => {
       startTime: `PT${time.getHours()}H${time.getMinutes()}M`,
       totalSeats: emptySeats + 1,
     };
-    console.log("mutating", input);
-    await mutateFunction({
+
+    const groupResult = await groupMutateFunction({
       variables: {
         input: input,
       },
     });
+
+    const groupId = groupResult.data?.createGroup.group?.id;
+    if (groupId === undefined) return;
+
+    const initialRideCount =
+      (days.value.toString(2).match(/1/g)?.length ?? 3) * 2; // Create two weeks of rides
+
+    // TODO: Data inconsistency can arise here
+
+    // Create some initial rides to start off
+    await ridesMutateFunction({
+      variables: {
+        input: {
+          groupId: groupId,
+          count: initialRideCount,
+        },
+      },
+    });
+
     router.navigate("/groups");
   };
 
-  const body = mutationLoading ? (
-    <Spinner />
-  ) : mutationCalled && (mutationError || mutationData === undefined) ? (
-    <Text>Whoops! Ran into an error when creating a group :/</Text>
-  ) : (
-    <VStack space="lg">
-      <FormControl>
-        <HStack justifyContent="space-between">
-          <FormControlLabel mb="$1">
-            <FormControlLabelText>Start time</FormControlLabelText>
-          </FormControlLabel>
-          <TimePicker time={time} onChange={setTime} />
-        </HStack>
-        <FormControlHelper>
-          <FormControlHelperText>
-            Select the time the group leaves the starting point
-          </FormControlHelperText>
-        </FormControlHelper>
-      </FormControl>
-      <FormControl isRequired={true} isInvalid={days.validation === "failure"}>
-        <FormControlLabel mb="$1">
-          <FormControlLabelText>Schedule</FormControlLabelText>
-        </FormControlLabel>
-        <VStack space="sm">
-          {dayInfo.map(({ name, value }) => (
-            <Checkbox
-              value={name}
-              aria-label={name}
-              key={name}
-              onChange={(_) => {
-                setValidatedDays(days.value ^ value);
-              }}
-            >
-              <CheckboxIndicator mr="$2">
-                <CheckboxIcon>
-                  <CheckIcon />
-                </CheckboxIcon>
-              </CheckboxIndicator>
-              <CheckboxLabel>{name}</CheckboxLabel>
-            </Checkbox>
-          ))}
-        </VStack>
-        <FormControlHelper>
-          <FormControlHelperText>
-            Select the days this group will be commuting
-          </FormControlHelperText>
-        </FormControlHelper>
-        {days.validation === "failure" && (
-          <FormControlError>
-            <FormControlErrorIcon as={AlertCircleIcon} />
-            <FormControlErrorText>{days.error}</FormControlErrorText>
-          </FormControlError>
-        )}
-      </FormControl>
-      <FormControl>
-        <FormControlLabel>
-          <FormControlLabelText>Empty seats</FormControlLabelText>
-        </FormControlLabel>
-        <Select
-          selectedValue={emptySeats.toString()}
-          onValueChange={(val) => setEmptySeats(+val)}
+  const body =
+    groupMutationLoading || ridesMutationLoading ? (
+      <Spinner />
+    ) : groupMutationCalled &&
+      (groupMutationError || groupMutationData === undefined) ? (
+      <Text>Whoops! Ran into an error when creating a group :/</Text>
+    ) : ridesMutationCalled &&
+      (ridesMutationError || ridesMutationData === undefined) ? (
+      <Text>Whoops! Ran into an error when creating initial rides :/</Text>
+    ) : (
+      <VStack space="lg">
+        <FormControl>
+          <HStack justifyContent="space-between">
+            <FormControlLabel mb="$1">
+              <FormControlLabelText>Start time</FormControlLabelText>
+            </FormControlLabel>
+            <TimePicker time={time} onChange={setTime} />
+          </HStack>
+          <FormControlHelper>
+            <FormControlHelperText>
+              Select the time the group leaves the starting point
+            </FormControlHelperText>
+          </FormControlHelper>
+        </FormControl>
+        <FormControl
+          isRequired={true}
+          isInvalid={days.validation === "failure"}
         >
-          <SelectTrigger>
-            <SelectInput />
-          </SelectTrigger>
-          <SelectPortal>
-            <SelectBackdrop />
-            <SelectContent>
-              <SelectDragIndicatorWrapper>
-                <SelectDragIndicator />
-              </SelectDragIndicatorWrapper>
-              {Array.from({ length: 7 }, (_, index) => index + 1).map((i) => (
-                <SelectItem label={i.toString()} value={i.toString()} key={i} />
-              ))}
-            </SelectContent>
-          </SelectPortal>
-        </Select>
-      </FormControl>
-      <FormControl>
-        <FormControlLabel mb="$1">
-          <FormControlLabelText>Start location</FormControlLabelText>
-        </FormControlLabel>
-        <Text>
-          {startLocation.latitude}, {startLocation.longitude}
-        </Text>
-        <LocationPicker
-          startingCoordinates={startLocation}
-          onConfirm={(newLocation) => setStartLocation(newLocation)}
-        />
-        <FormControlHelper>
-          <FormControlHelperText>
-            Select the starting location of the group
-          </FormControlHelperText>
-        </FormControlHelper>
-      </FormControl>
-      <FormControl>
-        <FormControlLabel mb="$1">
-          <FormControlLabelText>End location</FormControlLabelText>
-        </FormControlLabel>
-        <Text>
-          {endLocation.latitude}, {endLocation.longitude}
-        </Text>
-        <LocationPicker
-          startingCoordinates={endLocation}
-          onConfirm={(newLocation) => setEndLocation(newLocation)}
-        />
-        <FormControlHelper>
-          <FormControlHelperText>
-            Select the end location of the group
-          </FormControlHelperText>
-        </FormControlHelper>
-      </FormControl>
-      <Button
-        action="positive"
-        onPress={() => onSubmit()}
-        isDisabled={days.validation === "failure"}
-      >
-        <ButtonText>Create</ButtonText>
-      </Button>
-    </VStack>
-  );
+          <FormControlLabel mb="$1">
+            <FormControlLabelText>Schedule</FormControlLabelText>
+          </FormControlLabel>
+          <VStack space="sm">
+            {dayInfo.map(({ name, value }) => (
+              <Checkbox
+                value={name}
+                aria-label={name}
+                key={name}
+                onChange={(_) => {
+                  setValidatedDays(days.value ^ value);
+                }}
+              >
+                <CheckboxIndicator mr="$2">
+                  <CheckboxIcon>
+                    <CheckIcon />
+                  </CheckboxIcon>
+                </CheckboxIndicator>
+                <CheckboxLabel>{name}</CheckboxLabel>
+              </Checkbox>
+            ))}
+          </VStack>
+          <FormControlHelper>
+            <FormControlHelperText>
+              Select the days this group will be commuting
+            </FormControlHelperText>
+          </FormControlHelper>
+          {days.validation === "failure" && (
+            <FormControlError>
+              <FormControlErrorIcon as={AlertCircleIcon} />
+              <FormControlErrorText>{days.error}</FormControlErrorText>
+            </FormControlError>
+          )}
+        </FormControl>
+        <FormControl>
+          <FormControlLabel>
+            <FormControlLabelText>Empty seats</FormControlLabelText>
+          </FormControlLabel>
+          <Select
+            selectedValue={emptySeats.toString()}
+            onValueChange={(val) => setEmptySeats(+val)}
+          >
+            <SelectTrigger>
+              <SelectInput />
+            </SelectTrigger>
+            <SelectPortal>
+              <SelectBackdrop />
+              <SelectContent>
+                <SelectDragIndicatorWrapper>
+                  <SelectDragIndicator />
+                </SelectDragIndicatorWrapper>
+                {Array.from({ length: 7 }, (_, index) => index + 1).map((i) => (
+                  <SelectItem
+                    label={i.toString()}
+                    value={i.toString()}
+                    key={i}
+                  />
+                ))}
+              </SelectContent>
+            </SelectPortal>
+          </Select>
+        </FormControl>
+        <FormControl>
+          <FormControlLabel mb="$1">
+            <FormControlLabelText>Start location</FormControlLabelText>
+          </FormControlLabel>
+          <Text>
+            {startLocation.latitude}, {startLocation.longitude}
+          </Text>
+          <LocationPicker
+            startingCoordinates={startLocation}
+            onConfirm={(newLocation) => setStartLocation(newLocation)}
+          />
+          <FormControlHelper>
+            <FormControlHelperText>
+              Select the starting location of the group
+            </FormControlHelperText>
+          </FormControlHelper>
+        </FormControl>
+        <FormControl>
+          <FormControlLabel mb="$1">
+            <FormControlLabelText>End location</FormControlLabelText>
+          </FormControlLabel>
+          <Text>
+            {endLocation.latitude}, {endLocation.longitude}
+          </Text>
+          <LocationPicker
+            startingCoordinates={endLocation}
+            onConfirm={(newLocation) => setEndLocation(newLocation)}
+          />
+          <FormControlHelper>
+            <FormControlHelperText>
+              Select the end location of the group
+            </FormControlHelperText>
+          </FormControlHelper>
+        </FormControl>
+        <Button
+          action="positive"
+          onPress={() => onSubmit()}
+          isDisabled={days.validation === "failure"}
+        >
+          <ButtonText>Create</ButtonText>
+        </Button>
+      </VStack>
+    );
 
   return (
     <SafeAreaView flex={1}>
