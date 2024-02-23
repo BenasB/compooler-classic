@@ -63,7 +63,12 @@ const Index = () => {
 
   const [
     getAllRides,
-    { loading: ridesLoading, error: ridesError, data: ridesData },
+    {
+      loading: ridesLoading,
+      error: ridesError,
+      data: ridesData,
+      called: ridesCalled,
+    },
   ] = useLazyQuery(GET_ALL_USER_RIDES, {
     context: {
       clientName: Clients.Rides,
@@ -79,17 +84,16 @@ const Index = () => {
   const body =
     groupsLoading || ridesLoading ? (
       <Spinner />
-    ) : groupsError ||
-      groupsData === undefined ||
-      ridesError ||
-      ridesData === undefined ? (
-      <Text>Whoops! Ran into an error :/</Text>
+    ) : groupsError || groupsData === undefined ? (
+      <Text>Whoops! Ran into an error the groups for your rides :/</Text>
+    ) : ridesCalled && (ridesError || ridesData === undefined) ? (
+      <Text>Whoops! Ran into an error when loading your rides :/</Text>
     ) : groupsData.groups.length === 0 ? (
       <Text color="$secondary400" textAlign="center">
         Seems like you don't have any rides yet! Join a group first.
       </Text>
     ) : (
-      ridesData.rides.map((ride) => (
+      ridesData?.rides.map((ride) => (
         <Text key={ride.id}>
           Ride {ride.id} {ride.startTime} {ride.status}
         </Text>
