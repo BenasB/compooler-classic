@@ -148,6 +148,7 @@ const Join = () => {
     onCompleted: (data) => {
       if (data.joinGroup.errors || !data.joinGroup.group) return;
 
+      // TODO: Data inconsistency can arise here
       joinRidesFunction({ variables: { groupId: data.joinGroup.group.id } });
     },
     context: {

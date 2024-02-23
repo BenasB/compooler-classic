@@ -108,7 +108,6 @@ const Create = () => {
         (days.value.toString(2).match(/1/g)?.length ?? 3) * 2; // Two weeks of rides
 
       // TODO: Data inconsistency can arise here
-
       // Create some initial rides to start off
       ridesMutateFunction({
         variables: {

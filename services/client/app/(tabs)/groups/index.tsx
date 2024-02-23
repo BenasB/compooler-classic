@@ -65,6 +65,19 @@ const LEAVE_GROUP = gql(`
   }
 `);
 
+const LEAVE_UPCOMING_RIDES = gql(`
+  mutation LEAVE_UPCOMING_RIDES($groupId: Int!){
+    leaveUpcomingRides(input: { groupId: $groupId }) {
+      ids
+      errors {
+        ... on Error {
+          message
+        }
+      }
+    } 
+  }
+`);
+
 const Groups = () => {
   const { user } = usePrivateAuthContext();
 
@@ -88,17 +101,38 @@ const Groups = () => {
   });
 
   const [
-    mutateFunction,
+    leaveGroupFunction,
     {
-      data: mutationData,
-      loading: mutationLoading,
-      error: mutationError,
-      called: mutationCalled,
+      data: leaveGroupData,
+      loading: leaveGroupLoading,
+      error: leaveGroupError,
+      called: leaveGroupCalled,
     },
   ] = useMutation(LEAVE_GROUP, {
-    refetchQueries: [GET_USER_GROUPS],
     context: {
       clientName: Clients.GroupMaker,
+    },
+    onCompleted: (data) => {
+      if (data.abandonGroup.errors || !data.abandonGroup.group) return;
+
+      leaveRidesFunction({
+        variables: { groupId: data.abandonGroup.group.id },
+      });
+    },
+  });
+
+  const [
+    leaveRidesFunction,
+    {
+      data: leaveRidesData,
+      loading: leaveRidesLoading,
+      error: leaveRidesError,
+      called: leaveRidesCalled,
+    },
+  ] = useMutation(LEAVE_UPCOMING_RIDES, {
+    refetchQueries: [GET_USER_GROUPS],
+    context: {
+      clientName: Clients.Rides,
     },
   });
 
@@ -117,12 +151,18 @@ const Groups = () => {
   }, []);
 
   const body =
-    queryLoading || mutationLoading ? (
+    queryLoading || leaveGroupLoading || leaveRidesLoading ? (
       <Spinner />
     ) : queryError || queryData === undefined ? (
       <Text>Whoops! Ran into an error :/</Text>
-    ) : mutationCalled && (mutationError || mutationData === undefined) ? (
+    ) : leaveGroupCalled &&
+      (leaveGroupError || leaveGroupData === undefined) ? (
       <Text>Whoops! Ran into an error when leaving a group :/</Text>
+    ) : leaveRidesCalled &&
+      (leaveRidesError || leaveRidesData === undefined) ? (
+      <Text>
+        Whoops! Ran into an error when leaving the group's upcoming rides :/
+      </Text>
     ) : queryData.groups.length === 0 ? (
       <Text color="$secondary400" textAlign="center">
         Seems like you don't have any groups yet!
@@ -153,7 +193,7 @@ const Groups = () => {
                 action="negative"
                 onPress={() => {
                   // TODO: Allow group delete/disband for drivers
-                  mutateFunction({ variables: { groupId: group.id } });
+                  leaveGroupFunction({ variables: { groupId: group.id } });
                 }}
               >
                 <ButtonText>
