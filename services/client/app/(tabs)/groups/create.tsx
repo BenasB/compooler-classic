@@ -100,6 +100,25 @@ const Create = () => {
     context: {
       clientName: Clients.GroupMaker,
     },
+    onCompleted: (data) => {
+      if (data.createGroup.errors || !data.createGroup.group) return;
+
+      const groupId = data.createGroup.group.id;
+      const initialRideCount =
+        (days.value.toString(2).match(/1/g)?.length ?? 3) * 2; // Two weeks of rides
+
+      // TODO: Data inconsistency can arise here
+
+      // Create some initial rides to start off
+      ridesMutateFunction({
+        variables: {
+          input: {
+            groupId: groupId,
+            count: initialRideCount,
+          },
+        },
+      });
+    },
   });
 
   const [
@@ -113,6 +132,9 @@ const Create = () => {
   ] = useMutation(CREATE_INITIAL_RIDES, {
     context: {
       clientName: Clients.Rides,
+    },
+    onCompleted: () => {
+      router.navigate("/groups");
     },
   });
 
@@ -172,31 +194,11 @@ const Create = () => {
       totalSeats: emptySeats + 1,
     };
 
-    const groupResult = await groupMutateFunction({
+    await groupMutateFunction({
       variables: {
         input: input,
       },
     });
-
-    const groupId = groupResult.data?.createGroup.group?.id;
-    if (groupId === undefined) return;
-
-    const initialRideCount =
-      (days.value.toString(2).match(/1/g)?.length ?? 3) * 2; // Create two weeks of rides
-
-    // TODO: Data inconsistency can arise here
-
-    // Create some initial rides to start off
-    await ridesMutateFunction({
-      variables: {
-        input: {
-          groupId: groupId,
-          count: initialRideCount,
-        },
-      },
-    });
-
-    router.navigate("/groups");
   };
 
   const body =

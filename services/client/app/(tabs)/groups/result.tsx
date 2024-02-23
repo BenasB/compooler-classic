@@ -73,6 +73,21 @@ const JOIN_GROUP = gql(`
   }
 `);
 
+const JOIN_UPCOMING_RIDES = gql(`
+  mutation JoinUpcomingRides($groupId: Int!){
+    joinUpcomingRides(input: { groupId: $groupId }) {
+      ride {
+        id
+      }
+      errors {
+        ... on Error {
+          message
+        }
+      }
+    }
+  }
+`);
+
 const Join = () => {
   const queryParameters = useLocalSearchParams<{
     startLatitude: string;
@@ -122,23 +137,42 @@ const Join = () => {
   });
 
   const [
-    mutateFunction,
+    joinGroupFunction,
     {
-      data: mutationData,
-      loading: mutationLoading,
-      error: mutationError,
-      called: mutationCalled,
+      data: joinGroupData,
+      loading: joinGroupLoading,
+      error: joinGroupError,
+      called: joinGroupCalled,
     },
   ] = useMutation(JOIN_GROUP, {
     onCompleted: (data) => {
-      if (data.joinGroup.errors) return;
+      if (data.joinGroup.errors || !data.joinGroup.group) return;
 
-      router.navigate("/groups");
+      joinRidesFunction({ variables: { groupId: data.joinGroup.group.id } });
     },
     context: {
       clientName: Clients.GroupMaker,
     },
   }); // Don't need to refetch GET_JOINABLE_GROUPS since we'll be navigated off this page
+
+  const [
+    joinRidesFunction,
+    {
+      data: joinRidesData,
+      loading: joinRidesLoading,
+      error: joinRidesError,
+      called: joinRidesCalled,
+    },
+  ] = useMutation(JOIN_UPCOMING_RIDES, {
+    onCompleted: (data) => {
+      if (data.joinUpcomingRides.errors) return;
+
+      router.navigate("/groups");
+    },
+    context: {
+      clientName: Clients.Rides,
+    },
+  });
 
   useFocusEffect(
     useCallback(() => {
@@ -155,16 +189,29 @@ const Join = () => {
   }, []);
 
   const body =
-    queryLoading || mutationLoading ? (
+    queryLoading || joinGroupLoading || joinRidesLoading ? (
       <Spinner />
     ) : queryError || queryData === undefined ? (
       <Text>Whoops! Ran into an error :/</Text>
-    ) : mutationCalled && (mutationError || mutationData === undefined) ? (
+    ) : joinGroupCalled && (joinGroupError || joinGroupData === undefined) ? (
       <Text>Whoops! Ran into an error when joining a group :/</Text>
-    ) : mutationData?.joinGroup.errors ? (
+    ) : joinRidesCalled && (joinRidesError || joinRidesData === undefined) ? (
+      <Text>
+        Whoops! Ran into an error when joining the group's upcoming rides :/
+      </Text>
+    ) : joinGroupData?.joinGroup.errors ? (
       <>
         <Text textAlign="center">Ran into an error!</Text>
-        {mutationData.joinGroup.errors.map((x) => (
+        {joinGroupData.joinGroup.errors.map((x) => (
+          <Text key={x.message} textAlign="center">
+            {x.message}
+          </Text>
+        ))}
+      </>
+    ) : joinRidesData?.joinUpcomingRides.errors ? (
+      <>
+        <Text textAlign="center">Ran into an error!</Text>
+        {joinRidesData.joinUpcomingRides.errors.map((x) => (
           <Text key={x.message} textAlign="center">
             {x.message}
           </Text>
@@ -199,7 +246,7 @@ const Join = () => {
                 variant="outline"
                 action="positive"
                 onPress={async () => {
-                  await mutateFunction({
+                  await joinGroupFunction({
                     variables: {
                       groupId: group.id,
                     },

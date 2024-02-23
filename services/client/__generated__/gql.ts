@@ -19,8 +19,9 @@ const documents = {
     "\n  mutation LeaveGroup($groupId: Int!){\n    abandonGroup(input: {id: $groupId}){\n      group {\n        id\n      }\n      errors {\n        ... on Error{\n          message\n        }\n      }\n    } \n  }\n": types.LeaveGroupDocument,
     "\n  query GetNearestJoinableGroups(\n    $userStartLocation: CoordinatesInput!\n    $userEndLocation: CoordinatesInput!\n    $currentUserId: String!\n  ) {\n    nearestGroups(\n      userStartLocation: $userStartLocation\n      userEndLocation: $userEndLocation\n      where: {\n        and: [\n          { driver: { id: { neq: $currentUserId } } }\n          { passengers: { none: { id: { eq: $currentUserId } } } }\n        ]\n      }\n    ) {\n      id\n      startTime\n      days\n      startLocation {\n        latitude\n        longitude\n        distance(to: $userStartLocation)\n      }\n      endLocation {\n        latitude\n        longitude\n      }\n      totalSeats\n      passengers {\n        id\n      }\n    }\n  }\n": types.GetNearestJoinableGroupsDocument,
     "\n  mutation JoinGroup($groupId: Int!){\n    joinGroup(input: {id: $groupId}){\n      group {\n        id\n      }\n      errors {\n        ... on Error{\n          message\n        }\n      }\n    } \n  }\n": types.JoinGroupDocument,
+    "\n  mutation JoinUpcomingRides($groupId: Int!){\n    joinUpcomingRides(input: { groupId: $groupId }) {\n      ride {\n        id\n      }\n      errors {\n        ... on Error {\n          message\n        }\n      }\n    }\n  }\n": types.JoinUpcomingRidesDocument,
     "\n  query GetUserGroupsIdsForRides($currentUserId: String!) {\n    groups(\n      where: {\n        or: [\n          { driver: { id: { eq: $currentUserId } } }\n          { passengers: { some: { id: { eq: $currentUserId } } } }\n        ]\n      }\n    ) {\n      id\n      driver {\n        id\n      }\n      passengers {\n        id\n      }\n    }\n  }\n": types.GetUserGroupsIdsForRidesDocument,
-    "\n  query GetAllUserRides($groupIds: [Int!]!) {\n    rides(where: { groupId: { in: $groupIds } }) {\n        id\n        startTime\n        status\n    }\n  }\n": types.GetAllUserRidesDocument,
+    "\n  query GetAllUserRides($groupIds: [Int!]!) {\n    rides(where: { groupId: { in: $groupIds } }, order: { startTime: ASC }) {\n        id\n        startTime\n        status\n    }\n  }\n": types.GetAllUserRidesDocument,
 };
 
 /**
@@ -64,11 +65,15 @@ export function gql(source: "\n  mutation JoinGroup($groupId: Int!){\n    joinGr
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  mutation JoinUpcomingRides($groupId: Int!){\n    joinUpcomingRides(input: { groupId: $groupId }) {\n      ride {\n        id\n      }\n      errors {\n        ... on Error {\n          message\n        }\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation JoinUpcomingRides($groupId: Int!){\n    joinUpcomingRides(input: { groupId: $groupId }) {\n      ride {\n        id\n      }\n      errors {\n        ... on Error {\n          message\n        }\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n  query GetUserGroupsIdsForRides($currentUserId: String!) {\n    groups(\n      where: {\n        or: [\n          { driver: { id: { eq: $currentUserId } } }\n          { passengers: { some: { id: { eq: $currentUserId } } } }\n        ]\n      }\n    ) {\n      id\n      driver {\n        id\n      }\n      passengers {\n        id\n      }\n    }\n  }\n"): (typeof documents)["\n  query GetUserGroupsIdsForRides($currentUserId: String!) {\n    groups(\n      where: {\n        or: [\n          { driver: { id: { eq: $currentUserId } } }\n          { passengers: { some: { id: { eq: $currentUserId } } } }\n        ]\n      }\n    ) {\n      id\n      driver {\n        id\n      }\n      passengers {\n        id\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  query GetAllUserRides($groupIds: [Int!]!) {\n    rides(where: { groupId: { in: $groupIds } }) {\n        id\n        startTime\n        status\n    }\n  }\n"): (typeof documents)["\n  query GetAllUserRides($groupIds: [Int!]!) {\n    rides(where: { groupId: { in: $groupIds } }) {\n        id\n        startTime\n        status\n    }\n  }\n"];
+export function gql(source: "\n  query GetAllUserRides($groupIds: [Int!]!) {\n    rides(where: { groupId: { in: $groupIds } }, order: { startTime: ASC }) {\n        id\n        startTime\n        status\n    }\n  }\n"): (typeof documents)["\n  query GetAllUserRides($groupIds: [Int!]!) {\n    rides(where: { groupId: { in: $groupIds } }, order: { startTime: ASC }) {\n        id\n        startTime\n        status\n    }\n  }\n"];
 
 export function gql(source: string) {
   return (documents as any)[source] ?? {};

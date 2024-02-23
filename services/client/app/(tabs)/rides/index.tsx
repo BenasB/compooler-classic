@@ -1,7 +1,7 @@
 import { ScrollView, Spinner } from "@gluestack-ui/themed";
 import { Text, Center, SafeAreaView, VStack } from "@gluestack-ui/themed";
-import { Stack } from "expo-router";
-import React, { useEffect } from "react";
+import { Stack, useFocusEffect } from "expo-router";
+import React, { useCallback } from "react";
 import { gql } from "../../../__generated__";
 import { useLazyQuery, useQuery } from "@apollo/client";
 import { Clients } from "../../../hooks/apollo";
@@ -30,7 +30,7 @@ const GET_USER_GROUPS_IDS_FOR_RIDES = gql(`
 
 const GET_ALL_USER_RIDES = gql(`
   query GetAllUserRides($groupIds: [Int!]!) {
-    rides(where: { groupId: { in: $groupIds } }) {
+    rides(where: { groupId: { in: $groupIds } }, order: { startTime: ASC }) {
         id
         startTime
         status
@@ -50,8 +50,14 @@ const Index = () => {
     context: {
       clientName: Clients.GroupMaker,
     },
+    notifyOnNetworkStatusChange: true,
     variables: {
       currentUserId: user.uid,
+    },
+    onCompleted: (data) => {
+      if (data.groups.length === 0) return;
+
+      getAllRides({ variables: { groupIds: data.groups.map((g) => g.id) } });
     },
   });
 
@@ -64,13 +70,11 @@ const Index = () => {
     },
   });
 
-  useEffect(() => {
-    if (groupsData && groupsData.groups.length > 0) {
-      getAllRides({
-        variables: { groupIds: groupsData.groups.map((g) => g.id) },
-      });
-    }
-  }, [groupsData]);
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+    }, [])
+  );
 
   const body =
     groupsLoading || ridesLoading ? (
