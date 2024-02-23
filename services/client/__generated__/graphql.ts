@@ -15,7 +15,7 @@ export type Scalars = {
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
   /** The `DateTime` scalar represents an ISO-8601 compliant date time type. */
-  DateTime: { input: any; output: any; }
+  DateTime: { input: string; output: string; }
   /** The `TimeSpan` scalar represents an ISO-8601 compliant duration type. */
   TimeSpan: { input: string; output: string; }
 };
@@ -593,7 +593,7 @@ export type GetAllUserRidesQueryVariables = Exact<{
 }>;
 
 
-export type GetAllUserRidesQuery = { __typename?: 'Query', rides: Array<{ __typename?: 'Ride', id: number, startTime: any, status: RideStatus }> };
+export type GetAllUserRidesQuery = { __typename?: 'Query', rides: Array<{ __typename?: 'Ride', id: number, startTime: string, status: RideStatus }> };
 
 
 export const CreateGroupDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateGroup"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateGroupInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createGroup"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"group"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"Field","name":{"kind":"Name","value":"errors"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Error"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"message"}}]}}]}}]}}]}}]} as unknown as DocumentNode<CreateGroupMutation, CreateGroupMutationVariables>;

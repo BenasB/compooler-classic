@@ -1,11 +1,19 @@
-import { ScrollView, Spinner } from "@gluestack-ui/themed";
-import { Text, Center, SafeAreaView, VStack } from "@gluestack-ui/themed";
+import {
+  Text,
+  Center,
+  SafeAreaView,
+  VStack,
+  ScrollView,
+  Spinner,
+  RefreshControl,
+} from "@gluestack-ui/themed";
 import { Stack, useFocusEffect } from "expo-router";
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import { gql } from "../../../__generated__";
 import { useLazyQuery, useQuery } from "@apollo/client";
 import { Clients } from "../../../hooks/apollo";
 import { usePrivateAuthContext } from "../../../hooks/auth";
+import RideRow from "../../../components/rides/RideRow";
 
 const GET_USER_GROUPS_IDS_FOR_RIDES = gql(`
   query GetUserGroupsIdsForRides($currentUserId: String!) {
@@ -81,6 +89,14 @@ const Index = () => {
     }, [])
   );
 
+  const [refreshing, setRefreshing] = useState<boolean>(false);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await refetch();
+    setRefreshing(false);
+  }, []);
+
   const body =
     groupsLoading || ridesLoading ? (
       <Spinner />
@@ -93,21 +109,39 @@ const Index = () => {
         Seems like you don't have any rides yet! Join a group first.
       </Text>
     ) : (
-      ridesData?.rides.map((ride) => (
-        <Text key={ride.id}>
-          Ride {ride.id} {ride.startTime} {ride.status}
-        </Text>
-      ))
+      <VStack space={"lg"}>
+        {ridesData?.rides.map((ride) => (
+          <RideRow
+            key={ride.id}
+            date={ride.startTime.split("T")[0].split("-").slice(1).join("-")}
+            time={ride.startTime.split("T")[1].split(":").slice(0, 2).join(":")}
+            id={ride.id}
+            status={ride.status}
+          />
+        ))}
+      </VStack>
     );
 
   return (
     <SafeAreaView h="$full">
       <Stack.Screen options={{ title: "My rides" }} />
-      <Center h="$full" p="$5">
-        <VStack space="md" h="$full" $base-w={"100%"} $md-w={"60%"} $lg-w={550}>
-          <ScrollView>{body}</ScrollView>
-        </VStack>
-      </Center>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
+        <Center h="$full" w="$full" p="$5">
+          <VStack
+            space="md"
+            h="$full"
+            $base-w={"100%"}
+            $md-w={"60%"}
+            $lg-w={550}
+          >
+            {body}
+          </VStack>
+        </Center>
+      </ScrollView>
     </SafeAreaView>
   );
 };

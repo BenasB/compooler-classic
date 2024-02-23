@@ -13,6 +13,7 @@ const config: CodegenConfig = {
       config: {
         scalars: {
           TimeSpan: "string",
+          DateTime: "string",
         },
       },
     },
