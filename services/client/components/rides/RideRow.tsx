@@ -1,6 +1,6 @@
 import React from "react";
 import { RideStatus } from "../../__generated__/graphql";
-import { Box, HStack, Text, View, useToken } from "@gluestack-ui/themed";
+import { Box, HStack, Text, useToken } from "@gluestack-ui/themed";
 import { Link } from "expo-router";
 import { Feather } from "@expo/vector-icons";
 import { useColorScheme } from "react-native";

@@ -65,7 +65,12 @@ const Index = () => {
     onCompleted: (data) => {
       if (data.groups.length === 0) return;
 
-      getAllRides({ variables: { groupIds: data.groups.map((g) => g.id) } });
+      if (ridesCalled)
+        allRidesRefetch({
+          groupIds: data.groups.map((g) => g.id),
+        });
+      else
+        getAllRides({ variables: { groupIds: data.groups.map((g) => g.id) } });
     },
   });
 
@@ -76,11 +81,13 @@ const Index = () => {
       error: ridesError,
       data: ridesData,
       called: ridesCalled,
+      refetch: allRidesRefetch,
     },
   ] = useLazyQuery(GET_ALL_USER_RIDES, {
     context: {
       clientName: Clients.Rides,
     },
+    fetchPolicy: "network-only",
   });
 
   useFocusEffect(
@@ -97,11 +104,15 @@ const Index = () => {
     setRefreshing(false);
   }, []);
 
+  console.log(ridesData?.rides);
+
   const body =
     groupsLoading || ridesLoading ? (
       <Spinner />
     ) : groupsError || groupsData === undefined ? (
-      <Text>Whoops! Ran into an error the groups for your rides :/</Text>
+      <Text>
+        Whoops! Ran into an error when loading the groups for your rides :/
+      </Text>
     ) : ridesCalled && (ridesError || ridesData === undefined) ? (
       <Text>Whoops! Ran into an error when loading your rides :/</Text>
     ) : groupsData.groups.length === 0 ? (
