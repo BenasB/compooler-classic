@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Button,
   ButtonGroup,
@@ -8,10 +8,11 @@ import {
   Spinner,
   Text,
 } from "@gluestack-ui/themed";
-import { gql } from "../../__generated__";
+import { gql } from "../../../__generated__";
 import { useMutation } from "@apollo/client";
-import { Clients } from "../../hooks/apollo";
-import { RideStatus } from "../../__generated__/graphql";
+import { Clients } from "../../../hooks/apollo";
+import { RideStatus } from "../../../__generated__/graphql";
+import { GET_RIDE_DETAILS } from "./query";
 
 const PROGRESS_RIDE = gql(`
   mutation ProgressRide($input: ProgressRideInput!) {
@@ -30,12 +31,10 @@ const PROGRESS_RIDE = gql(`
 
 interface Props {
   id: number;
-  initialStatus: RideStatus;
+  status: RideStatus;
 }
 
-const DriverActions = ({ id, initialStatus }: Props) => {
-  const [status, setStatus] = useState<RideStatus>(initialStatus);
-
+const DriverActions = ({ id, status }: Props) => {
   const [
     progressFunction,
     {
@@ -48,11 +47,7 @@ const DriverActions = ({ id, initialStatus }: Props) => {
     context: {
       clientName: Clients.Rides,
     },
-    onCompleted: (data) => {
-      if (data.progressRide.errors || !data.progressRide.ride) return;
-
-      setStatus(data.progressRide.ride.status);
-    },
+    refetchQueries: [GET_RIDE_DETAILS],
   });
 
   if (progressLoading)

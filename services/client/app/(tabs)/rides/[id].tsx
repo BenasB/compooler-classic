@@ -7,28 +7,13 @@ import {
   Spinner,
 } from "@gluestack-ui/themed";
 import { Stack, useLocalSearchParams } from "expo-router";
-import React from "react";
-import { gql } from "../../../__generated__";
+import React, { useMemo } from "react";
 import { Clients } from "../../../hooks/apollo";
 import { useQuery } from "@apollo/client";
 import { usePrivateAuthContext } from "../../../hooks/auth";
-import PassengerActions from "../../../components/rides/PassengerActions";
-import DriverActions from "../../../components/rides/DriverActions";
-
-const GET_RIDE_DETAILS = gql(`
-  query GetRideDetails($id: Int!) {
-    rideById(id: $id) {
-      id
-      startTime
-      groupId
-      status
-      passengers {
-        passengerId
-        participationStatus
-      }
-    }
-  }
-`);
+import PassengerActions from "../../../components/rides/details/PassengerActions";
+import DriverActions from "../../../components/rides/details/DriverActions";
+import { GET_RIDE_DETAILS } from "../../../components/rides/details/query";
 
 const Details = () => {
   const { user } = usePrivateAuthContext();
@@ -45,7 +30,6 @@ const Details = () => {
     loading: rideLoading,
     error: rideError,
     data: rideData,
-    refetch,
   } = useQuery(GET_RIDE_DETAILS, {
     variables: { id: +id },
     context: {
@@ -53,7 +37,11 @@ const Details = () => {
     },
   });
 
-  // TODO: render body/actions based on if the user is a passenger or a driver
+  const passenger = useMemo(() => {
+    if (!rideData?.rideById) return undefined;
+    return rideData.rideById.passengers.find((x) => x.passengerId === user.uid);
+  }, [rideData]);
+
   const body = rideLoading ? (
     <Spinner />
   ) : rideError || rideData === undefined ? (
@@ -66,11 +54,15 @@ const Details = () => {
     <>
       <Text>Ride #{rideData.rideById.id}</Text>
       <Center>
-        {rideData.rideById.passengers.some((x) => x.passengerId == user.uid) ? (
-          <PassengerActions />
+        {passenger ? (
+          <PassengerActions
+            rideStatus={rideData.rideById.status}
+            participationStatus={passenger.participationStatus}
+            id={rideData.rideById.id}
+          />
         ) : (
           <DriverActions
-            initialStatus={rideData.rideById.status}
+            status={rideData.rideById.status}
             id={rideData.rideById.id}
           />
         )}

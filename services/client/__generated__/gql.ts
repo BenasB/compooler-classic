@@ -21,10 +21,11 @@ const documents = {
     "\n  query GetNearestJoinableGroups(\n    $userStartLocation: CoordinatesInput!\n    $userEndLocation: CoordinatesInput!\n    $currentUserId: String!\n  ) {\n    nearestGroups(\n      userStartLocation: $userStartLocation\n      userEndLocation: $userEndLocation\n      where: {\n        and: [\n          { driver: { id: { neq: $currentUserId } } }\n          { passengers: { none: { id: { eq: $currentUserId } } } }\n        ]\n      }\n    ) {\n      id\n      startTime\n      days\n      startLocation {\n        latitude\n        longitude\n        distance(to: $userStartLocation)\n      }\n      endLocation {\n        latitude\n        longitude\n        distance(to: $userEndLocation)\n      }\n      totalSeats\n      passengers {\n        id\n      }\n    }\n  }\n": types.GetNearestJoinableGroupsDocument,
     "\n  mutation JoinGroup($groupId: Int!){\n    joinGroup(input: {id: $groupId}){\n      group {\n        id\n      }\n      errors {\n        ... on Error{\n          message\n        }\n      }\n    } \n  }\n": types.JoinGroupDocument,
     "\n  mutation JoinUpcomingRides($groupId: Int!){\n    joinUpcomingRides(input: { groupId: $groupId }) {\n      ride {\n        id\n      }\n      errors {\n        ... on Error {\n          message\n        }\n      }\n    }\n  }\n": types.JoinUpcomingRidesDocument,
-    "\n  query GetRideDetails($id: Int!) {\n    rideById(id: $id) {\n      id\n      startTime\n      groupId\n      status\n      passengers {\n        passengerId\n        participationStatus\n      }\n    }\n  }\n": types.GetRideDetailsDocument,
     "\n  query GetUserGroupsIdsForRides($currentUserId: String!) {\n    groups(\n      where: {\n        or: [\n          { driver: { id: { eq: $currentUserId } } }\n          { passengers: { some: { id: { eq: $currentUserId } } } }\n        ]\n      }\n    ) {\n      id\n      driver {\n        id\n      }\n      passengers {\n        id\n      }\n    }\n  }\n": types.GetUserGroupsIdsForRidesDocument,
     "\n  query GetAllUserRides($groupIds: [Int!]!, $currentDateTime: DateTime!) {\n    upcoming: rides(\n      where: {\n        and: [\n          { groupId: { in: $groupIds } }\n          { startTime: {gte: $currentDateTime }}\n        ]\n      }\n      order: { startTime: ASC }\n    ) {\n      id\n      startTime\n      status\n    }\n    history: rides(\n      where: {\n        and: [\n          { groupId: { in: $groupIds } }\n          { startTime: { lt: $currentDateTime } }\n        ]\n      }\n      order: { startTime: DESC }\n    ) {\n      id\n      startTime\n      status\n    }\n  }\n": types.GetAllUserRidesDocument,
     "\n  mutation ProgressRide($input: ProgressRideInput!) {\n    progressRide(input: $input) {\n      ride {\n        status\n      }\n      errors {\n        ... on Error {\n          message\n        }\n      }\n    }\n  }\n": types.ProgressRideDocument,
+    "\n  mutation ChangeParticipationStatus($input: ChangeRideParticipationStatusInput!) {\n    changeRideParticipationStatus(input: $input) {\n      ridePassenger{\n        participationStatus\n      }\n      errors {\n        ... on Error {\n          message\n        }\n      }\n    }\n  }\n": types.ChangeParticipationStatusDocument,
+    "\n  query GetRideDetails($id: Int!) {\n    rideById(id: $id) {\n      id\n      startTime\n      groupId\n      status\n      passengers {\n        passengerId\n        participationStatus\n      }\n    }\n  }\n": types.GetRideDetailsDocument,
 };
 
 /**
@@ -76,10 +77,6 @@ export function gql(source: "\n  mutation JoinUpcomingRides($groupId: Int!){\n  
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  query GetRideDetails($id: Int!) {\n    rideById(id: $id) {\n      id\n      startTime\n      groupId\n      status\n      passengers {\n        passengerId\n        participationStatus\n      }\n    }\n  }\n"): (typeof documents)["\n  query GetRideDetails($id: Int!) {\n    rideById(id: $id) {\n      id\n      startTime\n      groupId\n      status\n      passengers {\n        passengerId\n        participationStatus\n      }\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
 export function gql(source: "\n  query GetUserGroupsIdsForRides($currentUserId: String!) {\n    groups(\n      where: {\n        or: [\n          { driver: { id: { eq: $currentUserId } } }\n          { passengers: { some: { id: { eq: $currentUserId } } } }\n        ]\n      }\n    ) {\n      id\n      driver {\n        id\n      }\n      passengers {\n        id\n      }\n    }\n  }\n"): (typeof documents)["\n  query GetUserGroupsIdsForRides($currentUserId: String!) {\n    groups(\n      where: {\n        or: [\n          { driver: { id: { eq: $currentUserId } } }\n          { passengers: { some: { id: { eq: $currentUserId } } } }\n        ]\n      }\n    ) {\n      id\n      driver {\n        id\n      }\n      passengers {\n        id\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
@@ -89,6 +86,14 @@ export function gql(source: "\n  query GetAllUserRides($groupIds: [Int!]!, $curr
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  mutation ProgressRide($input: ProgressRideInput!) {\n    progressRide(input: $input) {\n      ride {\n        status\n      }\n      errors {\n        ... on Error {\n          message\n        }\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation ProgressRide($input: ProgressRideInput!) {\n    progressRide(input: $input) {\n      ride {\n        status\n      }\n      errors {\n        ... on Error {\n          message\n        }\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation ChangeParticipationStatus($input: ChangeRideParticipationStatusInput!) {\n    changeRideParticipationStatus(input: $input) {\n      ridePassenger{\n        participationStatus\n      }\n      errors {\n        ... on Error {\n          message\n        }\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation ChangeParticipationStatus($input: ChangeRideParticipationStatusInput!) {\n    changeRideParticipationStatus(input: $input) {\n      ridePassenger{\n        participationStatus\n      }\n      errors {\n        ... on Error {\n          message\n        }\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query GetRideDetails($id: Int!) {\n    rideById(id: $id) {\n      id\n      startTime\n      groupId\n      status\n      passengers {\n        passengerId\n        participationStatus\n      }\n    }\n  }\n"): (typeof documents)["\n  query GetRideDetails($id: Int!) {\n    rideById(id: $id) {\n      id\n      startTime\n      groupId\n      status\n      passengers {\n        passengerId\n        participationStatus\n      }\n    }\n  }\n"];
 
 export function gql(source: string) {
   return (documents as any)[source] ?? {};
