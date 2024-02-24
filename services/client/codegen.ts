@@ -1,8 +1,8 @@
 import { CodegenConfig } from "@graphql-codegen/cli";
 
 const config: CodegenConfig = {
-  schema: `http://localhost:19001/graphql`,
-  documents: ["app/**/*.{ts,tsx}"],
+  schema: [`http://localhost:19001/graphql`, `http://localhost:19002/graphql`],
+  documents: ["app/**/*.{ts,tsx}", "components/**/*.{ts,tsx}"],
   generates: {
     "./__generated__/": {
       preset: "client",
@@ -13,6 +13,7 @@ const config: CodegenConfig = {
       config: {
         scalars: {
           TimeSpan: "string",
+          DateTime: "string",
         },
       },
     },

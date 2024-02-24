@@ -56,24 +56,32 @@ const AuthContext = createContext<AuthState>(initialAuthState);
 
 export const AuthContextProvider = AuthContext.Provider;
 
-export const useAuthenticationRoot = () => {
+export const useAuthenticationRoot = (
+  setupApolloClient: (authState: AuthState) => Promise<void>
+) => {
   const [authState, setAuthState] = useState<AuthState>(initialAuthState);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(authState.firebase, (user) => {
+    const unsubscribe = onAuthStateChanged(authState.firebase, async (user) => {
       if (user) {
         console.log("Logged in", user);
-        setAuthState((prevState) => ({
-          ...prevState,
+        const newAuthState: AuthState = {
+          ...authState,
           state: "loggedIn",
           user: user,
-        }));
+        };
+
+        await setupApolloClient(newAuthState);
+        setAuthState(newAuthState);
       } else {
         console.log("Logged out");
-        setAuthState((prevState) => ({
-          ...prevState,
+        const newAuthState: AuthState = {
+          ...authState,
           state: "loggedOut",
-        }));
+        };
+
+        await setupApolloClient(newAuthState);
+        setAuthState(newAuthState);
       }
     });
 

@@ -6,7 +6,7 @@ import {
   ApolloLink,
 } from "@apollo/client";
 import Constants from "expo-constants";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Platform } from "react-native";
 import { setContext } from "@apollo/client/link/context";
 import { AuthState } from "./auth";
@@ -26,25 +26,43 @@ const createAuthLink = (token: string) =>
     };
   });
 
-const httpLink = createHttpLink({
+const groupMakerEndpoint = createHttpLink({
   uri:
     process.env.EXPO_PUBLIC_GROUP_MAKER_API_URL ||
     `http://${localIp}:19001/graphql`,
 });
 
-export const useApolloRoot = (authState: AuthState) => {
+const ridesEndpoint = createHttpLink({
+  uri:
+    process.env.EXPO_PUBLIC_RIDES_API_URL || `http://${localIp}:19002/graphql`,
+});
+
+export enum Clients {
+  GroupMaker = "groupMaker",
+  Rides = "rides",
+}
+
+export const useApolloRoot = () => {
   const [client, setClient] = useState<
     ApolloClient<NormalizedCacheObject> | undefined
   >(undefined); // Start off with undefined, soon to be initialized after auth initializes
 
-  useEffect(() => {
+  const setupClient = async (authState: AuthState) => {
     const createClient = async () => {
       let link: ApolloLink | undefined;
       if (authState.state === "loggedIn") {
         const token = await authState.user.getIdToken();
-        link = createAuthLink(token).concat(httpLink);
+        link = createAuthLink(token).split(
+          (op) => op.getContext().clientName === Clients.GroupMaker,
+          groupMakerEndpoint,
+          ridesEndpoint
+        );
       } else if (authState.state === "loggedOut") {
-        link = httpLink;
+        link = ApolloLink.split(
+          (op) => op.getContext().clientName === Clients.GroupMaker,
+          groupMakerEndpoint,
+          ridesEndpoint
+        );
       }
 
       setClient(
@@ -60,22 +78,34 @@ export const useApolloRoot = (authState: AuthState) => {
     ) => {
       if (authState.state === "loggedIn") {
         const token = await authState.user.getIdToken();
-        client.setLink(createAuthLink(token).concat(httpLink));
+        client.setLink(
+          createAuthLink(token).split(
+            (op) => op.getContext().clientName === Clients.GroupMaker,
+            groupMakerEndpoint,
+            ridesEndpoint
+          )
+        );
         await client.resetStore();
       } else if (authState.state === "loggedOut") {
-        client.setLink(httpLink);
+        client.setLink(
+          ApolloLink.split(
+            (op) => op.getContext().clientName === Clients.GroupMaker,
+            groupMakerEndpoint,
+            ridesEndpoint
+          )
+        );
         await client.clearStore();
       }
     };
 
     if (client === undefined) {
       // On startup
-      createClient();
+      await createClient();
     } else {
       // If the auth state changes later on
-      updateClient(client);
+      await updateClient(client);
     }
-  }, [authState.state]);
+  };
 
-  return client;
+  return { client, setupClient };
 };

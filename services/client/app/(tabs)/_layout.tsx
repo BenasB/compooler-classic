@@ -11,7 +11,7 @@ const Layout = () => {
   return (
     <Tabs screenOptions={{ headerShown: false }}>
       <Tabs.Screen
-        name="home"
+        name="rides"
         options={{
           tabBarLabel: "Rides",
           tabBarIcon: ({ color }) => (

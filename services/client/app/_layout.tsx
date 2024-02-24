@@ -14,8 +14,9 @@ import { useApolloRoot } from "../hooks/apollo";
 
 const AppLayout = () => {
   const colorScheme = useColorScheme();
-  const { authState } = useAuthenticationRoot();
-  const apolloClient = useApolloRoot(authState);
+  const { client: apolloClient, setupClient: setupApolloClient } =
+    useApolloRoot();
+  const { authState } = useAuthenticationRoot(setupApolloClient);
 
   const body =
     authState.state === "uninitialized" || apolloClient === undefined ? (

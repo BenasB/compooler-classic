@@ -47,22 +47,20 @@ public class Mutation
             .Cast<DateTime?>()
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
-        // Maybe would make sense to choose the newer between the two: latestStartTime and current group's local time
+        // Choose the newer between the two: latestStartTime and current group's local time
         // That way we would guard against creating next ride that is in the past (if latest ride was long time ago)
+        var groupCurrentLocalTime = GetGroupCurrentLocalDateTime(
+            group.StartLocation.Latitude,
+            group.StartLocation.Longitude
+        ).DateTime;
 
-        var startTime = latestStartTime.HasValue switch
-        {
-            false
-                => GetNextStartDateTime(
-                    GetGroupCurrentLocalDateTime(
-                        group.StartLocation.Latitude,
-                        group.StartLocation.Longitude
-                    ).DateTime,
-                    group.Days,
-                    startTimeOnly
-                ),
-            true => GetNextStartDateTime(latestStartTime.Value, group.Days, startTimeOnly)
-        };
+        var searchStartTime = (
+            latestStartTime.HasValue && (latestStartTime > groupCurrentLocalTime)
+                ? (DateTime)latestStartTime
+                : groupCurrentLocalTime
+        );
+
+        var startTime = GetNextStartDateTime(searchStartTime, group.Days, startTimeOnly);
 
         var newRides = new List<Ride>();
         for (int i = 0; i < count; i++)
@@ -127,7 +125,6 @@ public class Mutation
         {
             (RideStatus.Upcoming, RideStatus.InProgress or RideStatus.Cancelled) => true,
             (RideStatus.InProgress, RideStatus.Done) => true,
-            // Maybe Cancelled -> Upcoming should be possible
             (_, _) => false
         };
 
@@ -139,6 +136,17 @@ public class Mutation
         ride.Status = newStatus;
 
         await context.SaveChangesAsync(cancellationToken);
+
+        // Create the next ride, so the group does not run out of rides
+        if (newStatus == RideStatus.Done || newStatus == RideStatus.Cancelled)
+            await CreateNextRides(
+                ride.GroupId,
+                context,
+                groupMakerClient,
+                principal,
+                cancellationToken,
+                count: 1
+            );
 
         return context.Rides.Where(x => x == ride);
     }

@@ -6,7 +6,7 @@ const Index = () => {
   const authState = usePublicAuthContext();
 
   if (authState.state === "loggedIn") {
-    return <Redirect href={"/home"} />;
+    return <Redirect href={"/rides"} />;
   } else if (authState.state === "loggedOut") {
     return <Redirect href={"/login"} />;
   }

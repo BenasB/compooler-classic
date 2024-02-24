@@ -15,9 +15,10 @@ import { useMutation, useQuery } from "@apollo/client";
 import { usePrivateAuthContext } from "../../../hooks/auth";
 import { Link, Stack, useFocusEffect } from "expo-router";
 import { gql } from "../../../__generated__";
+import { Clients } from "../../../hooks/apollo";
 
 const GET_USER_GROUPS = gql(`
-  query GetUserGroups($userLocation: CoordinatesInput!, $currentUserId: String!) {
+  query GetUserGroups($currentUserId: String!) {
     groups(
       where: {
         or: [
@@ -35,7 +36,6 @@ const GET_USER_GROUPS = gql(`
       startLocation {
         latitude
         longitude
-        distance(to: $userLocation)
       }
       endLocation {
         latitude
@@ -64,6 +64,19 @@ const LEAVE_GROUP = gql(`
   }
 `);
 
+const LEAVE_UPCOMING_RIDES = gql(`
+  mutation LEAVE_UPCOMING_RIDES($groupId: Int!){
+    leaveUpcomingRides(input: { groupId: $groupId }) {
+      ids
+      errors {
+        ... on Error {
+          message
+        }
+      }
+    } 
+  }
+`);
+
 const Groups = () => {
   const { user } = usePrivateAuthContext();
 
@@ -74,24 +87,49 @@ const Groups = () => {
     refetch,
   } = useQuery(GET_USER_GROUPS, {
     variables: {
-      userLocation: {
-        latitude: 54.72090502968378,
-        longitude: 25.28279660188754,
-      },
       currentUserId: user.uid,
     },
     notifyOnNetworkStatusChange: true, // Makes `loading` update when refetching
+    context: {
+      clientName: Clients.GroupMaker,
+    },
   });
 
   const [
-    mutateFunction,
+    leaveGroupFunction,
     {
-      data: mutationData,
-      loading: mutationLoading,
-      error: mutationError,
-      called: mutationCalled,
+      data: leaveGroupData,
+      loading: leaveGroupLoading,
+      error: leaveGroupError,
+      called: leaveGroupCalled,
     },
-  ] = useMutation(LEAVE_GROUP, { refetchQueries: [GET_USER_GROUPS] });
+  ] = useMutation(LEAVE_GROUP, {
+    context: {
+      clientName: Clients.GroupMaker,
+    },
+    onCompleted: (data) => {
+      if (data.abandonGroup.errors || !data.abandonGroup.group) return;
+
+      leaveRidesFunction({
+        variables: { groupId: data.abandonGroup.group.id },
+      });
+    },
+  });
+
+  const [
+    leaveRidesFunction,
+    {
+      data: leaveRidesData,
+      loading: leaveRidesLoading,
+      error: leaveRidesError,
+      called: leaveRidesCalled,
+    },
+  ] = useMutation(LEAVE_UPCOMING_RIDES, {
+    refetchQueries: [GET_USER_GROUPS],
+    context: {
+      clientName: Clients.Rides,
+    },
+  });
 
   useFocusEffect(
     useCallback(() => {
@@ -108,12 +146,18 @@ const Groups = () => {
   }, []);
 
   const body =
-    queryLoading || mutationLoading ? (
+    queryLoading || leaveGroupLoading || leaveRidesLoading ? (
       <Spinner />
     ) : queryError || queryData === undefined ? (
       <Text>Whoops! Ran into an error :/</Text>
-    ) : mutationCalled && (mutationError || mutationData === undefined) ? (
+    ) : leaveGroupCalled &&
+      (leaveGroupError || leaveGroupData === undefined) ? (
       <Text>Whoops! Ran into an error when leaving a group :/</Text>
+    ) : leaveRidesCalled &&
+      (leaveRidesError || leaveRidesData === undefined) ? (
+      <Text>
+        Whoops! Ran into an error when leaving the group's upcoming rides :/
+      </Text>
     ) : queryData.groups.length === 0 ? (
       <Text color="$secondary400" textAlign="center">
         Seems like you don't have any groups yet!
@@ -132,7 +176,6 @@ const Groups = () => {
               days: group.days,
               startLocation: group.startLocation,
               endLocation: group.endLocation,
-              distanceFrom: group.startLocation.distance,
               seats: {
                 total: group.totalSeats,
                 occupied: group.passengers.length + 1,
@@ -143,7 +186,8 @@ const Groups = () => {
                 variant="outline"
                 action="negative"
                 onPress={() => {
-                  mutateFunction({ variables: { groupId: group.id } });
+                  // TODO: Allow group delete/disband for drivers
+                  leaveGroupFunction({ variables: { groupId: group.id } });
                 }}
               >
                 <ButtonText>

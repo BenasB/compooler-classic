@@ -5,7 +5,7 @@ import { usePublicAuthContext } from "../../hooks/auth";
 const AuthLayout = () => {
   const authState = usePublicAuthContext();
 
-  if (authState.state === "loggedIn") return <Redirect href="/home" />;
+  if (authState.state === "loggedIn") return <Redirect href="/rides" />;
 
   return <Stack />;
 };
