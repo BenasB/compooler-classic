@@ -71,6 +71,7 @@ const GET_ALL_USER_RIDES = gql(`
 const Index = () => {
   const { user } = usePrivateAuthContext();
 
+  // TODO: Query from RidePassengers and find Rides instead of Groups and find Rides
   const {
     loading: groupsLoading,
     error: groupsError,

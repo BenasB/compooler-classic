@@ -64,6 +64,19 @@ const LEAVE_GROUP = gql(`
   }
 `);
 
+const DISBAND_GROUP = gql(`
+  mutation DisbandGroup($groupId: Int!) {
+    deleteGroup(input: { id: $groupId }) {
+      id
+      errors {
+        ... on Error {
+          message
+        }
+      }
+    }
+  }
+`);
+
 const LEAVE_UPCOMING_RIDES = gql(`
   mutation LEAVE_UPCOMING_RIDES($groupId: Int!){
     leaveUpcomingRides(input: { groupId: $groupId }) {
@@ -117,6 +130,21 @@ const Groups = () => {
   });
 
   const [
+    disbandGroupFunction,
+    {
+      data: disbandGroupData,
+      loading: disbandGroupLoading,
+      error: disbandGroupError,
+      called: disbandGroupCalled,
+    },
+  ] = useMutation(DISBAND_GROUP, {
+    refetchQueries: [GET_USER_GROUPS],
+    context: {
+      clientName: Clients.GroupMaker,
+    },
+  });
+
+  const [
     leaveRidesFunction,
     {
       data: leaveRidesData,
@@ -146,7 +174,10 @@ const Groups = () => {
   }, []);
 
   const body =
-    queryLoading || leaveGroupLoading || leaveRidesLoading ? (
+    queryLoading ||
+    leaveGroupLoading ||
+    leaveRidesLoading ||
+    disbandGroupLoading ? (
       <Spinner />
     ) : queryError || queryData === undefined ? (
       <Text>Whoops! Ran into an error :/</Text>
@@ -158,6 +189,9 @@ const Groups = () => {
       <Text>
         Whoops! Ran into an error when leaving the group's upcoming rides :/
       </Text>
+    ) : disbandGroupCalled &&
+      (disbandGroupError || disbandGroupData === undefined) ? (
+      <Text>Whoops! Ran into an error when disbanding a group :/</Text>
     ) : queryData.groups.length === 0 ? (
       <Text color="$secondary400" textAlign="center">
         Seems like you don't have any groups yet!
@@ -186,8 +220,9 @@ const Groups = () => {
                 variant="outline"
                 action="negative"
                 onPress={() => {
-                  // TODO: Allow group delete/disband for drivers
-                  leaveGroupFunction({ variables: { groupId: group.id } });
+                  if (group.driver.id === user.uid)
+                    disbandGroupFunction({ variables: { groupId: group.id } });
+                  else leaveGroupFunction({ variables: { groupId: group.id } });
                 }}
               >
                 <ButtonText>
