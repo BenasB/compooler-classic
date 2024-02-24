@@ -10,12 +10,16 @@ interface Props {
   date: string;
   time: string;
   status: RideStatus;
+  upcoming?: boolean;
 }
 
-const RideRow = ({ id, date, time, status }: Props) => {
+const RideRow = ({ id, date, time, status, upcoming = false }: Props) => {
   const colorScheme = useColorScheme();
   const lightTextColor = useToken("colors", "textLight300");
   const darkTextColor = useToken("colors", "textLight700");
+
+  const emphasisColor = useToken("colors", "red600");
+
   const iconColor = colorScheme === "light" ? darkTextColor : lightTextColor;
 
   return (
@@ -48,7 +52,11 @@ const RideRow = ({ id, date, time, status }: Props) => {
           ) : status === RideStatus.Done ? (
             <Feather name="check-circle" size={24} color={iconColor} />
           ) : (
-            <Feather name="x-circle" size={24} color={iconColor} />
+            <Feather
+              name="x-circle"
+              size={24}
+              color={upcoming ? emphasisColor : iconColor}
+            />
           )}
         </HStack>
       </Box>

@@ -6,6 +6,7 @@ import {
   ScrollView,
   Spinner,
   RefreshControl,
+  Heading,
 } from "@gluestack-ui/themed";
 import { Stack, useFocusEffect } from "expo-router";
 import React, { useCallback, useState } from "react";
@@ -37,11 +38,32 @@ const GET_USER_GROUPS_IDS_FOR_RIDES = gql(`
 `);
 
 const GET_ALL_USER_RIDES = gql(`
-  query GetAllUserRides($groupIds: [Int!]!) {
-    rides(where: { groupId: { in: $groupIds } }, order: { startTime: ASC }) {
-        id
-        startTime
-        status
+  query GetAllUserRides($groupIds: [Int!]!, $currentDateTime: DateTime!) {
+    upcoming: rides(
+      where: {
+        and: [
+          { groupId: { in: $groupIds } }
+          { startTime: {gte: $currentDateTime }}
+        ]
+      }
+      order: { startTime: ASC }
+    ) {
+      id
+      startTime
+      status
+    }
+    history: rides(
+      where: {
+        and: [
+          { groupId: { in: $groupIds } }
+          { startTime: { lt: $currentDateTime } }
+        ]
+      }
+      order: { startTime: DESC }
+    ) {
+      id
+      startTime
+      status
     }
   }
 `);
@@ -65,12 +87,24 @@ const Index = () => {
     onCompleted: (data) => {
       if (data.groups.length === 0) return;
 
+      const localDateTime = new Date();
+      const timezoneOffsetInMinutes = localDateTime.getTimezoneOffset();
+      const localDateTimeAsUtc = new Date(
+        localDateTime.getTime() - timezoneOffsetInMinutes * 60000
+      );
+
       if (ridesCalled)
         allRidesRefetch({
           groupIds: data.groups.map((g) => g.id),
+          currentDateTime: localDateTimeAsUtc.toISOString(),
         });
       else
-        getAllRides({ variables: { groupIds: data.groups.map((g) => g.id) } });
+        getAllRides({
+          variables: {
+            groupIds: data.groups.map((g) => g.id),
+            currentDateTime: localDateTimeAsUtc.toISOString(),
+          },
+        });
     },
   });
 
@@ -87,7 +121,6 @@ const Index = () => {
     context: {
       clientName: Clients.Rides,
     },
-    fetchPolicy: "network-only",
   });
 
   useFocusEffect(
@@ -119,15 +152,39 @@ const Index = () => {
       </Text>
     ) : (
       <VStack space={"lg"}>
-        {ridesData?.rides.map((ride) => (
-          <RideRow
-            key={ride.id}
-            date={ride.startTime.split("T")[0].split("-").slice(1).join("-")}
-            time={ride.startTime.split("T")[1].split(":").slice(0, 2).join(":")}
-            id={ride.id}
-            status={ride.status}
-          />
-        ))}
+        <VStack space="md">
+          <Heading size="lg">Upcoming</Heading>
+          {ridesData?.upcoming.map((ride) => (
+            <RideRow
+              key={ride.id}
+              date={ride.startTime.split("T")[0].split("-").slice(1).join("-")}
+              time={ride.startTime
+                .split("T")[1]
+                .split(":")
+                .slice(0, 2)
+                .join(":")}
+              id={ride.id}
+              status={ride.status}
+              upcoming={true}
+            />
+          ))}
+        </VStack>
+        <VStack space="md">
+          <Heading size="lg">History</Heading>
+          {ridesData?.history.map((ride) => (
+            <RideRow
+              key={ride.id}
+              date={ride.startTime.split("T")[0].split("-").slice(1).join("-")}
+              time={ride.startTime
+                .split("T")[1]
+                .split(":")
+                .slice(0, 2)
+                .join(":")}
+              id={ride.id}
+              status={ride.status}
+            />
+          ))}
+        </VStack>
       </VStack>
     );
 

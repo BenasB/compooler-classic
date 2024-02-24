@@ -1,4 +1,5 @@
-﻿using Rides.Data.Entities;
+﻿using HotChocolate.Data.Filters;
+using Rides.Data.Entities;
 
 namespace Rides.Api;
 
@@ -18,7 +19,7 @@ public class RideObjectTypeExtension : ObjectTypeExtension<Ride>
 
                     if (context.Result is DateTime dt)
                     {
-                        // Treat all incoming date times as UTC
+                        // Treat all outgoing date times as UTC
                         // because otherwise Hot Chocolate will add the API's timezone
                         context.Result = DateTime.SpecifyKind(dt, DateTimeKind.Utc);
                     }
