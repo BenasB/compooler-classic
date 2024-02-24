@@ -104,8 +104,6 @@ const Index = () => {
     setRefreshing(false);
   }, []);
 
-  console.log(ridesData?.rides);
-
   const body =
     groupsLoading || ridesLoading ? (
       <Spinner />

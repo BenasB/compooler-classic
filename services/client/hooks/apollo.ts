@@ -6,7 +6,7 @@ import {
   ApolloLink,
 } from "@apollo/client";
 import Constants from "expo-constants";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Platform } from "react-native";
 import { setContext } from "@apollo/client/link/context";
 import { AuthState } from "./auth";
@@ -42,12 +42,12 @@ export enum Clients {
   Rides = "rides",
 }
 
-export const useApolloRoot = (authState: AuthState) => {
+export const useApolloRoot = () => {
   const [client, setClient] = useState<
     ApolloClient<NormalizedCacheObject> | undefined
   >(undefined); // Start off with undefined, soon to be initialized after auth initializes
 
-  useEffect(() => {
+  const setupClient = async (authState: AuthState) => {
     const createClient = async () => {
       let link: ApolloLink | undefined;
       if (authState.state === "loggedIn") {
@@ -100,12 +100,12 @@ export const useApolloRoot = (authState: AuthState) => {
 
     if (client === undefined) {
       // On startup
-      createClient();
+      await createClient();
     } else {
       // If the auth state changes later on
-      updateClient(client);
+      await updateClient(client);
     }
-  }, [authState.state]);
+  };
 
-  return client;
+  return { client, setupClient };
 };
