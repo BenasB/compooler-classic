@@ -49,6 +49,7 @@ const GET_JOINABLE_GROUPS = gql(`
       endLocation {
         latitude
         longitude
+        distance(to: $userEndLocation)
       }
       totalSeats
       passengers {
@@ -236,7 +237,6 @@ const Join = () => {
               days: group.days,
               startLocation: group.startLocation,
               endLocation: group.endLocation,
-              distanceFrom: group.startLocation.distance,
               seats: {
                 total: group.totalSeats,
                 occupied: group.passengers.length + 1,

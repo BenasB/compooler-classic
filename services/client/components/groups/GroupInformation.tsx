@@ -25,9 +25,12 @@ import { Coordinates, Days } from "../../types/group";
 interface Group {
   startTime: string;
   days: Days;
-  distanceFrom: number;
-  startLocation: Coordinates;
-  endLocation: Coordinates;
+  startLocation: Coordinates & {
+    distance?: number;
+  };
+  endLocation: Coordinates & {
+    distance?: number;
+  };
   seats: {
     total: number;
     occupied: number;
@@ -66,7 +69,6 @@ const GroupInformation = ({ group, button }: Props) => {
                   <AccordionTitleText>
                     <Text>{group.startTime}</Text>
                   </AccordionTitleText>
-                  <Text>~ {group.distanceFrom.toFixed()} m</Text>
                   {isExpanded ? (
                     <AccordionIcon as={ChevronUpIcon} />
                   ) : (
@@ -99,6 +101,18 @@ const GroupInformation = ({ group, button }: Props) => {
                 {group.seats.occupied}/{group.seats.total}
               </Text>
             </HStack>
+            {group.startLocation.distance && (
+              <HStack space="md">
+                <Feather name="log-in" size={24} color={color} />
+                <Text>~ {group.startLocation.distance.toFixed()} m</Text>
+              </HStack>
+            )}
+            {group.endLocation.distance && (
+              <HStack space="md">
+                <Feather name="log-out" size={24} color={color} />
+                <Text>~ {group.endLocation.distance.toFixed()} m</Text>
+              </HStack>
+            )}
             <Center>{button}</Center>
           </VStack>
         </AccordionContent>

@@ -18,7 +18,7 @@ import { gql } from "../../../__generated__";
 import { Clients } from "../../../hooks/apollo";
 
 const GET_USER_GROUPS = gql(`
-  query GetUserGroups($userLocation: CoordinatesInput!, $currentUserId: String!) {
+  query GetUserGroups($currentUserId: String!) {
     groups(
       where: {
         or: [
@@ -36,7 +36,6 @@ const GET_USER_GROUPS = gql(`
       startLocation {
         latitude
         longitude
-        distance(to: $userLocation)
       }
       endLocation {
         latitude
@@ -88,10 +87,6 @@ const Groups = () => {
     refetch,
   } = useQuery(GET_USER_GROUPS, {
     variables: {
-      userLocation: {
-        latitude: 54.72090502968378,
-        longitude: 25.28279660188754,
-      },
       currentUserId: user.uid,
     },
     notifyOnNetworkStatusChange: true, // Makes `loading` update when refetching
@@ -181,7 +176,6 @@ const Groups = () => {
               days: group.days,
               startLocation: group.startLocation,
               endLocation: group.endLocation,
-              distanceFrom: group.startLocation.distance,
               seats: {
                 total: group.totalSeats,
                 occupied: group.passengers.length + 1,
