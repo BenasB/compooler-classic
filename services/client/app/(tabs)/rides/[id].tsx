@@ -5,6 +5,9 @@ import {
   VStack,
   Text,
   Spinner,
+  HStack,
+  useToken,
+  Heading,
 } from "@gluestack-ui/themed";
 import { Stack, useLocalSearchParams } from "expo-router";
 import React, { useMemo } from "react";
@@ -14,10 +17,21 @@ import { usePrivateAuthContext } from "../../../hooks/auth";
 import PassengerActions from "../../../components/rides/details/PassengerActions";
 import DriverActions from "../../../components/rides/details/DriverActions";
 import { GET_RIDE_DETAILS } from "../../../components/rides/details/query";
+import { Feather } from "@expo/vector-icons";
+import { useColorScheme } from "react-native";
+import {
+  RideParticipationStatus,
+  RideStatus,
+} from "../../../__generated__/graphql";
 
 const Details = () => {
   const { user } = usePrivateAuthContext();
   const { id } = useLocalSearchParams();
+
+  const colorScheme = useColorScheme();
+  const lightTextColor = useToken("colors", "textLight300");
+  const darkTextColor = useToken("colors", "textLight700");
+  const iconColor = colorScheme === "light" ? darkTextColor : lightTextColor;
 
   if (!id || isNaN(+id))
     return (
@@ -51,8 +65,51 @@ const Details = () => {
       <Text>Could not find this ride</Text>
     </Center>
   ) : (
-    <>
-      <Text>Ride #{rideData.rideById.id}</Text>
+    <VStack space="xl">
+      <VStack space="md">
+        <HStack space="md" alignItems="center">
+          <Feather name="activity" size={24} color={iconColor} />
+          <Text>
+            {rideData.rideById.status === RideStatus.Upcoming
+              ? "Upcoming"
+              : rideData.rideById.status === RideStatus.InProgress
+              ? "In progress"
+              : rideData.rideById.status === RideStatus.Done
+              ? "Done"
+              : "Cancelled"}
+          </Text>
+        </HStack>
+        <HStack space="md" alignItems="center">
+          <Feather name="calendar" size={24} color={iconColor} />
+          <Text>
+            {rideData.rideById.startTime.split("T")[0].split("-").join("-")}{" "}
+            {rideData.rideById.startTime
+              .split("T")[1]
+              .split(":")
+              .slice(0, 2)
+              .join(":")}
+          </Text>
+        </HStack>
+        <VStack space="md">
+          <Heading size="md">Passengers</Heading>
+          {rideData.rideById.passengers.map((passenger, i) => (
+            <HStack space="md" alignItems="center" key={passenger.passengerId}>
+              <Text>{i + 1}.</Text>
+              <Feather
+                name={
+                  passenger.participationStatus ===
+                  RideParticipationStatus.Participate
+                    ? "user-check"
+                    : "user-x"
+                }
+                size={24}
+                color={iconColor}
+              />
+              {passenger.passengerId === user.uid && <Text>(You)</Text>}
+            </HStack>
+          ))}
+        </VStack>
+      </VStack>
       <Center>
         {passenger ? (
           <PassengerActions
@@ -67,7 +124,7 @@ const Details = () => {
           />
         )}
       </Center>
-    </>
+    </VStack>
   );
 
   return (
