@@ -25,9 +25,9 @@ Start the APIs by going into the `*.Api` folders and running:
 dotnet run
 ```
 
-The APIs run on ports 19001+. Make sure they are reachable from your network (outside of your host), if you plan on using the client on a real phone.  
+The APIs run on ports 19001+. Make sure they are reachable from your network (outside of your host), if you plan on using the client on a real phone.
 
-The [client](https://github.com/BenasB/compooler/tree/main/services/client) uses [yarn](https://yarnpkg.com/) and [Node.js](https://nodejs.org/en) and can be started with the following:
+The [client](https://github.com/BenasB/compooler-classic/tree/main/services/client) uses [yarn](https://yarnpkg.com/) and [Node.js](https://nodejs.org/en) and can be started with the following:
 
 ```
 yarn install // if needed

@@ -12,4 +12,4 @@ Carpooler is a full stack application:
 - :icon-server: [Google Cloud Platform](https://cloud.google.com/) infrastructure
 
 The source code for this application is located in the following monorepo:
-[!ref target="blank" text="GitHub"](https://github.com/BenasB/compooler)
+[!ref target="blank" text="GitHub"](https://github.com/BenasB/compooler-classic)

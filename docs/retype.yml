@@ -1,12 +1,12 @@
 input: .
 output: .retype
-url: https://benasb.github.io/compooler
+url: https://benasb.github.io/compooler-classic
 branding:
   title: Compooler
   label: Docs
 links:
   - text: Repository
-    link: https://github.com/BenasB/compooler
+    link: https://github.com/BenasB/compooler-classic
     icon: mark-github
     target: blank
 footer:
