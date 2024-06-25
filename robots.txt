@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://benasb.github.io/compooler/sitemap.xml.gz
+Sitemap: https://benasb.github.io/compooler-classic/sitemap.xml.gz
